@@ -1,14 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>
-      PrimeRush
-    </title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrimeRush</title>
     <style>
-      :root {
+        :root {
             --bg: #0a0a0a;
             --fg: #ffffff;
             --fg-dim: #888888;
@@ -40,7 +37,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: &#39;Courier New&#39;, monospace;
+            font-family: 'Courier New', monospace;
             background: var(--bg);
             color: var(--fg);
             min-height: 100vh;
@@ -158,7 +155,7 @@
             gap: 12px;
         }
 
-        input[type=&#34;range&#34;] {
+        input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
             width: 140px;
@@ -168,7 +165,7 @@
             outline: none;
         }
 
-        input[type=&#34;range&#34;]::-webkit-slider-thumb {
+        input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 20px;
@@ -178,7 +175,7 @@
             cursor: pointer;
         }
 
-        input[type=&#34;range&#34;]::-moz-range-thumb {
+        input[type="range"]::-moz-range-thumb {
             width: 20px;
             height: 20px;
             background: var(--accent);
@@ -367,137 +364,94 @@
             .btn { padding: 0.8rem 2rem; font-size: 1.2rem; }
         }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <!-- Menu -->
-      <div class="screen active" id="menuScreen">
-        <div class="menu-screen">
-          <div class="title">
-            Prime 𝑹𝑼𝑺𝑯
-          </div>
-          <div class="menu-subtitle">
-            High Score:
-            <span id="menuHighScore">            0
-</span>
-          </div>
-          <div class="menu-buttons">
-            <button class="btn" onclick="game.startGame()">
-              Start
-            </button>
-            <button class="btn btn-secondary" onclick="game.showScreen(&#39;settingsScreen&#39;); game.refreshSettings()">
-              SETTINGS
-            </button>
-          </div>
+        <!-- Menu -->
+        <div class="screen active" id="menuScreen">
+            <div class="menu-screen">
+                <div class="title">Prime 𝑹𝑼𝑺𝑯</div>
+                <div class="menu-subtitle">High Score: <span id="menuHighScore">0</span></div>
+                <div class="menu-buttons">
+                    <button class="btn" onclick="game.startGame()">Start</button>
+                    <button class="btn btn-secondary" onclick="game.showScreen('settingsScreen'); game.refreshSettings()">SETTINGS</button>
+                </div>
+            </div>
         </div>
-      </div>
-      <!-- Settings / Stats -->
-      <div class="screen" id="settingsScreen">
-        <div class="settings-screen">
-          <div class="settings-title">
-            SETTINGS
-          </div>
-          <div class="settings-section">
-            <h3>
-              Tile Size
-            </h3>
-            <div class="setting-row">
-              <div class="slider-row">
-                <input type="range" id="tileSizeSlider" min="60" max="150" step="5" value="120" oninput="game.onTileSizeChange(this.value)" />
-                <span class="setting-value" id="tileSizeValue">                80
-</span>
-              </div>
+
+        <!-- Settings / Stats -->
+        <div class="screen" id="settingsScreen">
+            <div class="settings-screen">
+                <div class="settings-title">SETTINGS</div>
+
+                <div class="settings-section">
+                    <h3>Tile Size</h3>
+                    <div class="setting-row">
+                        <div class="slider-row">
+                            <input type="range" id="tileSizeSlider" min="60" max="150" step="5" value="120" oninput="game.onTileSizeChange(this.value)">
+                            <span class="setting-value" id="tileSizeValue">80</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Persistant stats</h3>
+                    <div class="stat-row">
+                        <span class="stat-label">Highest Score</span>
+                        <span class="stat-value" id="statHighScore">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Total Defeated</span>
+                        <span class="stat-value" id="statTotalDefeated">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Sum of Defeated</span>
+                        <span class="stat-value" id="statSumDefeated">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Highest Number</span>
+                        <span class="stat-value" id="statHighestNumber">0</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary back-btn" onclick="game.showScreen('menuScreen')">BACK</button>
             </div>
-          </div>
-          <div class="settings-section">
-            <h3>
-              Persistant stats
-            </h3>
-            <div class="stat-row">
-              <span class="stat-label">              Highest Score
-</span>
-              <span class="stat-value" id="statHighScore">              0
-</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label">              Total Defeated
-</span>
-              <span class="stat-value" id="statTotalDefeated">              0
-</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label">              Sum of Defeated
-</span>
-              <span class="stat-value" id="statSumDefeated">              0
-</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label">              Highest Number
-</span>
-              <span class="stat-value" id="statHighestNumber">              0
-</span>
-            </div>
-          </div>
-          <button class="btn btn-secondary back-btn" onclick="game.showScreen(&#39;menuScreen&#39;)">
-            BACK
-          </button>
         </div>
-      </div>
-      <!-- Game -->
-      <div class="screen" id="gameScreen">
-        <div class="game-screen">
-          <div class="game-header">
-            <div class="lives" id="livesContainer">
+
+        <!-- Game -->
+        <div class="screen" id="gameScreen">
+            <div class="game-screen">
+                <div class="game-header">
+                    <div class="lives" id="livesContainer"></div>
+                    <div class="stats">
+                        <div class="score" id="scoreDisplay">0</div>
+                        <div class="defeated">Defeated: <span id="defeatedDisplay">0</span></div>
+                    </div>
+                </div>
+                <div class="time-bar-container">
+                    <div class="time-bar" id="timeBar"></div>
+                </div>
+                <div class="number-display" id="numberDisplay">1</div>
+                <div class="prime-buttons phase-1" id="primeButtons"></div>
             </div>
-            <div class="stats">
-              <div class="score" id="scoreDisplay">
-                0
-              </div>
-              <div class="defeated">
-                Defeated:
-                <span id="defeatedDisplay">                0
-</span>
-              </div>
-            </div>
-          </div>
-          <div class="time-bar-container">
-            <div class="time-bar" id="timeBar">
-            </div>
-          </div>
-          <div class="number-display" id="numberDisplay">
-            1
-          </div>
-          <div class="prime-buttons phase-1" id="primeButtons">
-          </div>
         </div>
-      </div>
-      <!-- Game Over -->
-      <div class="screen" id="gameOverScreen">
-        <div class="game-over-screen">
-          <div class="game-over-title">
-            GAME OVER
-          </div>
-          <div class="final-stats">
-            <div>
-              Final Score:
-              <span id="finalScore">              0
-</span>
+
+        <!-- Game Over -->
+        <div class="screen" id="gameOverScreen">
+            <div class="game-over-screen">
+                <div class="game-over-title">GAME OVER</div>
+                <div class="final-stats">
+                    <div>Final Score: <span id="finalScore">0</span></div>
+                    <div>Numbers Defeated: <span id="finalDefeated">0</span></div>
+                </div>
+                <button class="btn" onclick="game.returnToMenu()">MENU</button>
             </div>
-            <div>
-              Numbers Defeated:
-              <span id="finalDefeated">              0
-</span>
-            </div>
-          </div>
-          <button class="btn" onclick="game.returnToMenu()">
-            MENU
-          </button>
         </div>
-      </div>
     </div>
+
     <script>
-      /* ── Storage helper (graceful fallback) ── */
-        var _ls = (function () { try { return window[&#39;local&#39; + &#39;Storage&#39;]; } catch (_) { return null; } })();
+        /* ── Storage helper (graceful fallback) ── */
+        var _ls = (function () { try { return window['local' + 'Storage']; } catch (_) { return null; } })();
         const storage = {
             _mem: {},
             get(key, fallback) {
@@ -520,7 +474,7 @@
             }
         };
 
-        const SAVE_KEY = &#39;primeDivide_save&#39;;
+        const SAVE_KEY = 'primeDivide_save';
 
         const game = {
             lives: 3,
@@ -570,33 +524,33 @@
             },
 
             applyTileSize(px) {
-                document.documentElement.style.setProperty(&#39;--tile-size&#39;, px + &#39;px&#39;);
+                document.documentElement.style.setProperty('--tile-size', px + 'px');
             },
 
             onTileSizeChange(val) {
                 const v = parseInt(val);
                 this.tileSize = v;
                 this.applyTileSize(v);
-                document.getElementById(&#39;tileSizeValue&#39;).textContent = v;
+                document.getElementById('tileSizeValue').textContent = v;
                 this.persist();
             },
 
             refreshSettings() {
-                document.getElementById(&#39;tileSizeSlider&#39;).value = this.tileSize;
-                document.getElementById(&#39;tileSizeValue&#39;).textContent = this.tileSize;
-                document.getElementById(&#39;statHighScore&#39;).textContent = this.highScore;
-                document.getElementById(&#39;statTotalDefeated&#39;).textContent = this.totalDefeated;
-                document.getElementById(&#39;statSumDefeated&#39;).textContent = this.sumDefeated;
-                document.getElementById(&#39;statHighestNumber&#39;).textContent = this.highestNumber;
+                document.getElementById('tileSizeSlider').value = this.tileSize;
+                document.getElementById('tileSizeValue').textContent = this.tileSize;
+                document.getElementById('statHighScore').textContent = this.highScore;
+                document.getElementById('statTotalDefeated').textContent = this.totalDefeated;
+                document.getElementById('statSumDefeated').textContent = this.sumDefeated;
+                document.getElementById('statHighestNumber').textContent = this.highestNumber;
             },
 
             updateMenuStats() {
-                document.getElementById(&#39;menuHighScore&#39;).textContent = this.highScore;
+                document.getElementById('menuHighScore').textContent = this.highScore;
             },
 
             showScreen(screenId) {
-                document.querySelectorAll(&#39;.screen&#39;).forEach(function (s) { s.classList.remove(&#39;active&#39;); });
-                document.getElementById(screenId).classList.add(&#39;active&#39;);
+                document.querySelectorAll('.screen').forEach(function (s) { s.classList.remove('active'); });
+                document.getElementById(screenId).classList.add('active');
             },
 
             startGame() {
@@ -604,7 +558,7 @@
                 this.score = 0;
                 this.displayedScore = 0;
                 this.defeated = 0;
-                this.showScreen(&#39;gameScreen&#39;);
+                this.showScreen('gameScreen');
                 this.updateLives();
                 this.updateScore();
                 this.nextNumber();
@@ -612,13 +566,13 @@
 
             calculatePhase() {
                 var n = this.defeated + 1;
-                if (n &lt;= 15) {
+                if (n <= 15) {
                     this.phase = 1;
                     this.difficulty = 1 + 0.02 * n;
                     this.primes = [2, 3, 5, 7];
                     this.maxTime = (8.5 + 0.1 * n) * 1000;
                     return 100 * Math.pow(1.1, n);
-                } else if (n &lt;= 30) {
+                } else if (n <= 30) {
                     this.phase = 2;
                     this.difficulty = 0.7 + 0.04 * n;
                     this.primes = [2, 3, 5, 7, 11, 13];
@@ -638,7 +592,7 @@
                 var num = 1;
                 while (true) {
                     var prime = this.primes[Math.floor(Math.random() * this.primes.length)];
-                    if (num * prime &gt; cap) break;
+                    if (num * prime > cap) break;
                     num *= prime;
                 }
                 return num;
@@ -654,13 +608,13 @@
             },
 
             updateButtons() {
-                var container = document.getElementById(&#39;primeButtons&#39;);
-                container.className = &#39;prime-buttons phase-&#39; + this.phase;
-                container.innerHTML = &#39;&#39;;
+                var container = document.getElementById('primeButtons');
+                container.className = 'prime-buttons phase-' + this.phase;
+                container.innerHTML = '';
                 var self = this;
                 this.primes.forEach(function (prime) {
-                    var btn = document.createElement(&#39;button&#39;);
-                    btn.className = &#39;prime-btn&#39;;
+                    var btn = document.createElement('button');
+                    btn.className = 'prime-btn';
                     btn.textContent = prime;
                     btn.onclick = function () { self.attack(prime, btn); };
                     container.appendChild(btn);
@@ -668,14 +622,14 @@
             },
 
             attack(prime, btn) {
-                if (this.currentNumber % prime === 0 &amp;&amp; Number.isInteger(this.currentNumber / prime)) {
+                if (this.currentNumber % prime === 0 && Number.isInteger(this.currentNumber / prime)) {
                     var timeRatio = this.timeRemaining / this.maxTime;
                     var points = Math.ceil(10 * this.difficulty * Math.pow(timeRatio, 0.55));
                     this.animateNumberFly(prime, btn);
                     var self = this;
                     setTimeout(function () {
                         self.currentNumber /= prime;
-                        if (!Number.isInteger(self.currentNumber) || self.currentNumber &lt; 1) {
+                        if (!Number.isInteger(self.currentNumber) || self.currentNumber < 1) {
                             self.loseLife();
                             return;
                         }
@@ -693,12 +647,12 @@
 
             animateNumberFly(prime, btn) {
                 var rect = btn.getBoundingClientRect();
-                var target = document.getElementById(&#39;numberDisplay&#39;).getBoundingClientRect();
-                var flyingNum = document.createElement(&#39;div&#39;);
-                flyingNum.className = &#39;flying-number&#39;;
+                var target = document.getElementById('numberDisplay').getBoundingClientRect();
+                var flyingNum = document.createElement('div');
+                flyingNum.className = 'flying-number';
                 flyingNum.textContent = prime;
-                flyingNum.style.left = rect.left + rect.width / 2 + &#39;px&#39;;
-                flyingNum.style.top = rect.top + rect.height / 2 + &#39;px&#39;;
+                flyingNum.style.left = rect.left + rect.width / 2 + 'px';
+                flyingNum.style.top = rect.top + rect.height / 2 + 'px';
                 document.body.appendChild(flyingNum);
                 var startX = rect.left + rect.width / 2;
                 var startY = rect.top + rect.height / 2;
@@ -712,10 +666,10 @@
                     var eased = 1 - Math.pow(1 - progress, 2);
                     var x = startX + (endX - startX) * eased;
                     var y = startY + (endY - startY) * eased;
-                    flyingNum.style.left = x + &#39;px&#39;;
-                    flyingNum.style.top = y + &#39;px&#39;;
+                    flyingNum.style.left = x + 'px';
+                    flyingNum.style.top = y + 'px';
                     flyingNum.style.opacity = 1 - progress;
-                    if (progress &lt; 1) {
+                    if (progress < 1) {
                         requestAnimationFrame(animate);
                     } else {
                         flyingNum.remove();
@@ -742,7 +696,7 @@
                     var eased = 1 - Math.pow(1 - progress, 3);
                     self.displayedScore = Math.round(startScore + (endScore - startScore) * eased);
                     self.updateScore();
-                    if (progress &lt; 1) {
+                    if (progress < 1) {
                         requestAnimationFrame(animate);
                     }
                 };
@@ -756,13 +710,13 @@
                 this.defeated++;
                 this.totalDefeated++;
                 this.sumDefeated += this._lastGeneratedNumber || 0;
-                if ((this._lastGeneratedNumber || 0) &gt; this.highestNumber) {
+                if ((this._lastGeneratedNumber || 0) > this.highestNumber) {
                     this.highestNumber = this._lastGeneratedNumber;
                 }
-                document.getElementById(&#39;defeatedDisplay&#39;).textContent = this.defeated;
+                document.getElementById('defeatedDisplay').textContent = this.defeated;
 
-                var display = document.getElementById(&#39;numberDisplay&#39;);
-                display.classList.add(&#39;defeat&#39;);
+                var display = document.getElementById('numberDisplay');
+                display.classList.add('defeat');
 
                 if (this.animationFrame) {
                     cancelAnimationFrame(this.animationFrame);
@@ -770,7 +724,7 @@
 
                 var self = this;
                 setTimeout(function () {
-                    display.classList.remove(&#39;defeat&#39;);
+                    display.classList.remove('defeat');
                     self.nextNumber();
                 }, 400);
             },
@@ -778,13 +732,13 @@
             loseLife() {
                 this.lives--;
                 this.updateLives();
-                var container = document.querySelector(&#39;.container&#39;);
-                container.classList.add(&#39;shake&#39;, &#39;flash&#39;);
+                var container = document.querySelector('.container');
+                container.classList.add('shake', 'flash');
                 setTimeout(function () {
-                    container.classList.remove(&#39;shake&#39;, &#39;flash&#39;);
+                    container.classList.remove('shake', 'flash');
                 }, 300);
 
-                if (this.lives &lt;= 0) {
+                if (this.lives <= 0) {
                     this.gameOver();
                 } else {
                     if (this.animationFrame) {
@@ -798,22 +752,22 @@
             },
 
             updateLives() {
-                var container = document.getElementById(&#39;livesContainer&#39;);
-                container.innerHTML = &#39;&#39;;
-                for (var i = 0; i &lt; this.lives; i++) {
-                    var heart = document.createElement(&#39;div&#39;);
-                    heart.className = &#39;heart&#39;;
-                    heart.textContent = &#39;\u2665&#39;;
+                var container = document.getElementById('livesContainer');
+                container.innerHTML = '';
+                for (var i = 0; i < this.lives; i++) {
+                    var heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.textContent = '\u2665';
                     container.appendChild(heart);
                 }
             },
 
             updateScore() {
-                document.getElementById(&#39;scoreDisplay&#39;).textContent = this.displayedScore;
+                document.getElementById('scoreDisplay').textContent = this.displayedScore;
             },
 
             updateNumberDisplay() {
-                document.getElementById(&#39;numberDisplay&#39;).textContent = this.currentNumber;
+                document.getElementById('numberDisplay').textContent = this.currentNumber;
             },
 
             startTimer() {
@@ -822,7 +776,7 @@
                     var delta = currentTime - self.lastTime;
                     self.lastTime = currentTime;
                     self.timeRemaining -= delta;
-                    if (self.timeRemaining &lt;= 0) {
+                    if (self.timeRemaining <= 0) {
                         self.timeRemaining = 0;
                         self.updateTimeBar();
                         self.loseLife();
@@ -836,26 +790,26 @@
 
             updateTimeBar() {
                 var percent = (this.timeRemaining / this.maxTime) * 100;
-                document.getElementById(&#39;timeBar&#39;).style.width = percent + &#39;%&#39;;
+                document.getElementById('timeBar').style.width = percent + '%';
             },
 
             gameOver() {
                 if (this.animationFrame) {
                     cancelAnimationFrame(this.animationFrame);
                 }
-                if (this.score &gt; this.highScore) {
+                if (this.score > this.highScore) {
                     this.highScore = this.score;
                 }
                 this.persist();
                 this.updateMenuStats();
 
-                document.getElementById(&#39;finalScore&#39;).textContent = this.score;
-                document.getElementById(&#39;finalDefeated&#39;).textContent = this.defeated;
-                this.showScreen(&#39;gameOverScreen&#39;);
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('finalDefeated').textContent = this.defeated;
+                this.showScreen('gameOverScreen');
             },
 
             returnToMenu() {
-                this.showScreen(&#39;menuScreen&#39;);
+                this.showScreen('menuScreen');
             }
         };
 
@@ -867,18 +821,19 @@
         };
 
         // Dark mode
-        if (window.matchMedia &amp;&amp; window.matchMedia(&#39;(prefers-color-scheme: dark)&#39;).matches) {
-            document.documentElement.classList.add(&#39;dark&#39;);
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
         }
-        window.matchMedia(&#39;(prefers-color-scheme: dark)&#39;).addEventListener(&#39;change&#39;, function (event) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (event) {
             if (event.matches) {
-                document.documentElement.classList.add(&#39;dark&#39;);
+                document.documentElement.classList.add('dark');
             } else {
-                document.documentElement.classList.remove(&#39;dark&#39;);
+                document.documentElement.classList.remove('dark');
             }
         });
 
         game.init();
     </script>
-  </body>
+</body>
 </html>
+
