@@ -1,0 +1,2 @@
+# Primerush
+Fuse primes.
