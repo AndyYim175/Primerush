@@ -214,6 +214,7 @@
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            position: relative;
         }
 
         .game-header {
@@ -233,15 +234,59 @@
 
         .stats {
             display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .score-box {
+            display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 4px;
+        }
+
+        .rank-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px;
+        }
+
+        .rank-title {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--fg-dim);
+            margin-bottom: 2px;
+        }
+
+        .rank-name-display {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .rank-progress-container {
+            width: 100%;
+            height: 4px;
+            background: var(--button-bg);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .rank-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            transition: width 0.1s ease-out;
         }
 
         .score {
             font-size: 1.5rem;
             font-weight: bold;
             color: var(--accent);
+            line-height: 1.1;
         }
 
         .defeated {
@@ -315,17 +360,90 @@
         .prime-btn:hover { background: var(--button-hover); transform: scale(1.05); }
         .prime-btn:active { background: var(--button-active); transform: scale(0.95); }
 
+        /* ── Minimalist In-Game Notifications ── */
+        .bonus-container {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+            z-index: 200;
+            align-items: flex-start;
+        }
+
+        .bonus-notify {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1rem;
+            color: var(--accent);
+            opacity: 0;
+            transform: translateX(-120%);
+            transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            pointer-events: none;
+            background: rgba(10, 10, 10, 0.85);
+            padding: 4px 8px;
+            border-left: 3px solid var(--accent);
+        }
+
+        @media (prefers-color-scheme: light) {
+            .bonus-notify {
+                background: rgba(245, 245, 245, 0.85);
+            }
+        }
+
+        .bonus-notify.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
         /* ── Game Over ── */
         .game-over-screen { text-align: center; }
 
         .game-over-title {
             font-size: 2.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             color: var(--danger);
         }
 
-        .final-stats { font-size: 1.5rem; margin-bottom: 3rem; }
-        .final-stats div { margin: 1rem 0; }
+        .final-stats { font-size: 1.5rem; margin-bottom: 2rem; }
+        .final-stats div { margin: 0.8rem 0; }
+
+        /* Extra Bonuses Tally Panel on Game Over */
+        .bonus-tally-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 2rem;
+            border: 1px dashed var(--accent);
+            text-align: left;
+        }
+
+        .bonus-tally-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--fg-dim);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .bonus-tally-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+        .bonus-tally-row:last-child { margin-bottom: 0; }
+
+        .bonus-tally-val {
+            color: var(--accent);
+            font-weight: bold;
+        }
 
         /* ── Animations ── */
         @keyframes shake {
@@ -353,8 +471,19 @@
             font-size: 2rem;
             font-weight: bold;
             pointer-events: none;
-            z-index: 1;
+            z-index: 101;
             color: var(--accent);
+        }
+
+        .flying-bonus {
+            position: fixed;
+            font-size: 2.2rem;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 102;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+            transition: transform 0.5s ease-in;
         }
 
         @media (max-width: 600px) {
@@ -371,9 +500,9 @@
         <div class="screen active" id="menuScreen">
             <div class="menu-screen">
                 <div class="title">Prime 𝑹𝑼𝑺𝑯</div>
-                <div class="menu-subtitle">High Score: <span id="menuHighScore">0</span></div>
+                <div class="menu-subtitle">High Score: <span id="menuHighScore">0</span> <span id="menuHighScoreRank" style="color: var(--accent); font-weight: bold;">(F)</span></div>
                 <div class="menu-buttons">
-                    <button class="btn" onclick="game.startGame()">Start</button>
+                    <button class="btn" onclick="game.startGame()">START</button>
                     <button class="btn btn-secondary" onclick="game.showScreen('settingsScreen'); game.refreshSettings()">SETTINGS</button>
                 </div>
             </div>
@@ -395,10 +524,14 @@
                 </div>
 
                 <div class="settings-section">
-                    <h3>Persistant stats</h3>
+                    <h3>Your stats</h3>
                     <div class="stat-row">
                         <span class="stat-label">Highest Score</span>
                         <span class="stat-value" id="statHighScore">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Highest Rank</span>
+                        <span class="stat-value" id="statHighestRank">F</span>
                     </div>
                     <div class="stat-row">
                         <span class="stat-label">Total Defeated</span>
@@ -420,12 +553,27 @@
 
         <!-- Game -->
         <div class="screen" id="gameScreen">
+            <!-- Dedicated Screen-relative Bonus HUD (Top Left) -->
+            <div class="bonus-container">
+                <div class="bonus-notify" id="quickBonusNotify">Quick: +0</div>
+                <div class="bonus-notify" id="preciseBonusNotify">Precise: +0</div>
+            </div>
+
             <div class="game-screen">
                 <div class="game-header">
                     <div class="lives" id="livesContainer"></div>
                     <div class="stats">
-                        <div class="score" id="scoreDisplay">0</div>
-                        <div class="defeated">Defeated: <span id="defeatedDisplay">0</span></div>
+                        <div class="score-box">
+                            <div class="score" id="scoreDisplay">0</div>
+                            <div class="defeated">Defeated: <span id="defeatedDisplay">0</span></div>
+                        </div>
+                        <div class="rank-box">
+                            <span class="rank-title">Rank</span>
+                            <div class="rank-name-display" id="rankDisplay">F</div>
+                            <div class="rank-progress-container">
+                                <div class="rank-progress-bar" id="rankProgressBar"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="time-bar-container">
@@ -439,11 +587,27 @@
         <!-- Game Over -->
         <div class="screen" id="gameOverScreen">
             <div class="game-over-screen">
-                <div class="game-over-title">GAME OVER</div>
+                <div class="game-over-title">GAME OVER!</div>
+                
                 <div class="final-stats">
-                    <div>Final Score: <span id="finalScore">0</span></div>
+                    <div>Final Score: <span id="finalScore" style="transition: color 0.3s;">0</span></div>
+                    <div>Final Rank: <span id="finalRank" style="color: var(--accent); font-weight: bold;">F</span></div>
                     <div>Numbers Defeated: <span id="finalDefeated">0</span></div>
                 </div>
+
+                <!-- Extra Bonuses Earned Summary -->
+                <div class="bonus-tally-container" id="bonusTallyContainer">
+                    <div class="bonus-tally-title">Extra Bonuses</div>
+                    <div class="bonus-tally-row">
+                        <span>Quick Bonus:</span>
+                        <span class="bonus-tally-val" id="tallyQuickBonus">+0</span>
+                    </div>
+                    <div class="bonus-tally-row">
+                        <span>Precise Bonus:</span>
+                        <span class="bonus-tally-val" id="tallyPreciseBonus">+0</span>
+                    </div>
+                </div>
+
                 <button class="btn" onclick="game.returnToMenu()">MENU</button>
             </div>
         </div>
@@ -480,6 +644,7 @@
             lives: 3,
             score: 0,
             displayedScore: 0,
+            displayedBaseScore: 0,     // Eased in-game score tracker for factor divisions
             defeated: 0,
             currentNumber: 1,
             phase: 1,
@@ -490,6 +655,16 @@
             lastTime: 0,
             animationFrame: null,
             scoreTransition: null,
+            isGameOver: false,         // State-guard to completely prevent double Game Overs
+
+            // Performance metrics tracking
+            currentNumberStartTime: 0,
+            attackTimes: [],
+            hasError: false,
+            baseScore: 0,              // Purely factor points shown live
+            quickBonusPoints: 0,       // Tally of Quick Bonus
+            preciseBonusPoints: 0,     // Tally of Precise Bonus
+            _currentNumberFactorsCount: 0, // Total expected prime factors of the current active generated number
 
             // Persistent data
             tileSize: 80,
@@ -539,6 +714,7 @@
                 document.getElementById('tileSizeSlider').value = this.tileSize;
                 document.getElementById('tileSizeValue').textContent = this.tileSize;
                 document.getElementById('statHighScore').textContent = this.highScore;
+                document.getElementById('statHighestRank').textContent = this.getRankInfo(this.highScore).name;
                 document.getElementById('statTotalDefeated').textContent = this.totalDefeated;
                 document.getElementById('statSumDefeated').textContent = this.sumDefeated;
                 document.getElementById('statHighestNumber').textContent = this.highestNumber;
@@ -546,6 +722,7 @@
 
             updateMenuStats() {
                 document.getElementById('menuHighScore').textContent = this.highScore;
+                document.getElementById('menuHighScoreRank').textContent = "(" + this.getRankInfo(this.highScore).name + ")";
             },
 
             showScreen(screenId) {
@@ -553,11 +730,62 @@
                 document.getElementById(screenId).classList.add('active');
             },
 
+            getRankInfo(score) {
+                const tiers = [
+                    { name: "F", min: 0, max: 200 },
+                    { name: "D-", min: 200, max: 400 },
+                    { name: "D", min: 400, max: 600 },
+                    { name: "D+", min: 600, max: 750 },
+                    { name: "C-", min: 750, max: 900 },
+                    { name: "C", min: 900, max: 1050 },
+                    { name: "C+", min: 1050, max: 1200 },
+                    { name: "B-", min: 1200, max: 1350 },
+                    { name: "B", min: 1350, max: 1500 },
+                    { name: "B+", min: 1500, max: 1600 },
+                    { name: "A-", min: 1600, max: 1700 },
+                    { name: "A", min: 1700, max: 1800 },
+                    { name: "A+", min: 1800, max: 1900 },
+                    { name: "S-", min: 1900, max: 2000 },
+                    { name: "S", min: 2000, max: 2250 }
+                ];
+
+                if (score >= 5000) {
+                    return { name: "X", percent: 100 };
+                }
+
+                if (score > 2250) {
+                    const diff = score - 2250;
+                    const numPluses = Math.floor(diff / 250) + 1;
+                    const rankName = "S" + "+".repeat(numPluses);
+                    const currentMin = 2250 + (numPluses - 1) * 250;
+                    const currentMax = Math.min(5000, 2250 + numPluses * 250);
+                    const range = currentMax - currentMin;
+                    const progress = range > 0 ? ((score - currentMin) / range) * 100 : 100;
+                    return { name: rankName, percent: progress };
+                }
+
+                for (let i = 0; i < tiers.length; i++) {
+                    const t = tiers[i];
+                    if (score >= t.min && score <= t.max) {
+                        const range = t.max - t.min;
+                        const progress = range > 0 ? ((score - t.min) / range) * 100 : 0;
+                        return { name: t.name, percent: progress };
+                    }
+                }
+
+                return { name: "F", percent: 0 };
+            },
+
             startGame() {
                 this.lives = 5;
                 this.score = 0;
+                this.baseScore = 0;
                 this.displayedScore = 0;
+                this.displayedBaseScore = 0;
                 this.defeated = 0;
+                this.quickBonusPoints = 0;
+                this.preciseBonusPoints = 0;
+                this.isGameOver = false;
                 this.showScreen('gameScreen');
                 this.updateLives();
                 this.updateScore();
@@ -590,10 +818,12 @@
             generateNumber() {
                 var cap = this.calculatePhase();
                 var num = 1;
+                this._currentNumberFactorsCount = 0;
                 while (true) {
                     var prime = this.primes[Math.floor(Math.random() * this.primes.length)];
                     if (num * prime > cap) break;
                     num *= prime;
+                    this._currentNumberFactorsCount++;
                 }
                 return num;
             },
@@ -601,6 +831,12 @@
             nextNumber() {
                 this.currentNumber = this.generateNumber();
                 this.timeRemaining = this.maxTime;
+                
+                // Reset metrics per generated number
+                this.currentNumberStartTime = performance.now();
+                this.attackTimes = [];
+                this.hasError = false;
+
                 this.updateNumberDisplay();
                 this.updateButtons();
                 this.lastTime = performance.now();
@@ -625,6 +861,10 @@
                 if (this.currentNumber % prime === 0 && Number.isInteger(this.currentNumber / prime)) {
                     var timeRatio = this.timeRemaining / this.maxTime;
                     var points = Math.ceil(10 * this.difficulty * Math.pow(timeRatio, 0.55));
+                    
+                    // Track tap timestamp relative to start
+                    this.attackTimes.push(performance.now() - this.currentNumberStartTime);
+                    
                     this.animateNumberFly(prime, btn);
                     var self = this;
                     setTimeout(function () {
@@ -633,6 +873,8 @@
                             self.loseLife();
                             return;
                         }
+                        
+                        self.baseScore += points;
                         self.score += points;
                         self.animateScore();
                         self.updateNumberDisplay();
@@ -678,12 +920,54 @@
                 requestAnimationFrame(animate);
             },
 
+            // Modern monospaced smooth rollup notifier featuring cubic-eased tally increase
+            // Wait for sliding transition (400ms) to complete before rolling up the values!
+            animateInGameBonus(type, oldVal, newVal) {
+                const elId = type === 'quick' ? 'quickBonusNotify' : 'preciseBonusNotify';
+                const label = type === 'quick' ? 'Quick: +' : 'Precise: +';
+                const el = document.getElementById(elId);
+                
+                if (el._hideTimeout) clearTimeout(el._hideTimeout);
+                if (el._animFrame) cancelAnimationFrame(el._animFrame);
+                if (el._slideInTimeout) clearTimeout(el._slideInTimeout);
+
+                // Instantly display and set old score
+                el.classList.add('show');
+                el.textContent = label + oldVal;
+
+                // Wait 400ms for the off-screen left CSS transition to finish sliding on-screen
+                el._slideInTimeout = setTimeout(() => {
+                    const duration = 600; // ms duration for score rollup
+                    const startTime = performance.now();
+
+                    const updateValue = (now) => {
+                        const elapsed = now - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const eased = 1 - Math.pow(1 - progress, 3); // Cubic ease-out
+                        const curVal = Math.round(oldVal + (newVal - oldVal) * eased);
+                        
+                        el.textContent = label + curVal;
+
+                        if (progress < 1) {
+                            el._animFrame = requestAnimationFrame(updateValue);
+                        } else {
+                            // Keep on-screen momentarily (250ms) before returning to the left
+                            el._hideTimeout = setTimeout(() => {
+                                el.classList.remove('show');
+                            }, 250);
+                        }
+                    };
+                    el._animFrame = requestAnimationFrame(updateValue);
+                }, 400);
+            },
+
+            // Animates ONLY the core factor divisions (baseScore) in-game
             animateScore() {
                 if (this.scoreTransition) {
                     this.scoreTransition.cancelled = true;
                 }
-                var startScore = this.displayedScore;
-                var endScore = this.score;
+                var startScore = this.displayedBaseScore;
+                var endScore = this.baseScore;
                 var startTime = performance.now();
                 var duration = 1000;
                 var transition = { cancelled: false };
@@ -694,7 +978,7 @@
                     var elapsed = currentTime - startTime;
                     var progress = Math.min(elapsed / duration, 1);
                     var eased = 1 - Math.pow(1 - progress, 3);
-                    self.displayedScore = Math.round(startScore + (endScore - startScore) * eased);
+                    self.displayedBaseScore = Math.round(startScore + (endScore - startScore) * eased);
                     self.updateScore();
                     if (progress < 1) {
                         requestAnimationFrame(animate);
@@ -704,9 +988,6 @@
             },
 
             numberDefeated() {
-                // Track the original number before it was divided to 1
-                var originalNum = this.currentNumber; // already 1 here
-                // We need to track at generation time instead — see nextNumber
                 this.defeated++;
                 this.totalDefeated++;
                 this.sumDefeated += this._lastGeneratedNumber || 0;
@@ -714,6 +995,50 @@
                     this.highestNumber = this._lastGeneratedNumber;
                 }
                 document.getElementById('defeatedDisplay').textContent = this.defeated;
+
+                // Track old values to power rollup visual
+                var oldQuick = this.quickBonusPoints;
+                var oldPrecise = this.preciseBonusPoints;
+
+                var totalDurationSec = (performance.now() - this.currentNumberStartTime) / 1000;
+                var factors = this._currentNumberFactorsCount;
+
+                // ── 1. Quick Bonus ──
+                var targetTime = 1.8 + (0.3 * factors);
+                if (!this.hasError && totalDurationSec <= targetTime) {
+                    var diff = targetTime - totalDurationSec;
+                    var intervals = diff / 0.1;
+                    var quickPoints = Math.floor(3 + intervals);
+                    this.quickBonusPoints += quickPoints;
+                    this.score += quickPoints;
+                    this.animateInGameBonus('quick', oldQuick, this.quickBonusPoints);
+                }
+
+                // ── 2. Precise Bonus ──
+                var q = this.defeated; 
+                if (!this.hasError && this.attackTimes.length >= 2) {
+                    var precise = true;
+                    for (var i = 1; i < this.attackTimes.length; i++) {
+                        var interval = (this.attackTimes[i] - this.attackTimes[i-1]) / 1000;
+                        if (interval > 0.7) {
+                            precise = false;
+                            break;
+                        }
+                    }
+                    if (precise) {
+                        var precisePoints = 0;
+                        if (q <= 15) {
+                            precisePoints = 3 + Math.floor(q / 2);
+                        } else if (q <= 30) {
+                            precisePoints = 6 + Math.floor((q - 15) / 2);
+                        } else {
+                            precisePoints = 10 + Math.floor((q - 30) / 2);
+                        }
+                        this.preciseBonusPoints += precisePoints;
+                        this.score += precisePoints;
+                        this.animateInGameBonus('precise', oldPrecise, this.preciseBonusPoints);
+                    }
+                }
 
                 var display = document.getElementById('numberDisplay');
                 display.classList.add('defeat');
@@ -731,6 +1056,7 @@
 
             loseLife() {
                 this.lives--;
+                this.hasError = true; // Negate any bonus possibility for this factor
                 this.updateLives();
                 var container = document.querySelector('.container');
                 container.classList.add('shake', 'flash');
@@ -762,8 +1088,12 @@
                 }
             },
 
+            // In-game score updates solely depend on baseScore
             updateScore() {
-                document.getElementById('scoreDisplay').textContent = this.displayedScore;
+                document.getElementById('scoreDisplay').textContent = this.displayedBaseScore;
+                const rankInfo = this.getRankInfo(this.displayedBaseScore);
+                document.getElementById('rankDisplay').textContent = rankInfo.name;
+                document.getElementById('rankProgressBar').style.width = rankInfo.percent + '%';
             },
 
             updateNumberDisplay() {
@@ -794,21 +1124,156 @@
             },
 
             gameOver() {
+                // Prevent duplicate Game Over sequences from running simultaneously
+                if (this.isGameOver) return;
+                this.isGameOver = true;
+
                 if (this.animationFrame) {
                     cancelAnimationFrame(this.animationFrame);
                 }
+                
+                // Track total final score (including base score AND extra bonuses)
                 if (this.score > this.highScore) {
                     this.highScore = this.score;
                 }
                 this.persist();
                 this.updateMenuStats();
 
-                document.getElementById('finalScore').textContent = this.score;
+                // Clear and render previous tally labels
+                document.getElementById('tallyQuickBonus').textContent = "+" + this.quickBonusPoints;
+                document.getElementById('tallyPreciseBonus').textContent = "+" + this.preciseBonusPoints;
                 document.getElementById('finalDefeated').textContent = this.defeated;
+
+                // Display Game Over Screen - initially shows core division baseScore
+                var finalScoreLabel = document.getElementById('finalScore');
+                var finalRankLabel = document.getElementById('finalRank');
+                
+                finalScoreLabel.textContent = this.baseScore;
+                finalScoreLabel.style.color = "var(--fg)";
+                finalRankLabel.textContent = this.getRankInfo(this.baseScore).name;
+                
                 this.showScreen('gameOverScreen');
+
+                // Fire the Flying Bonuses Tally sequence exactly once after 1 second
+                var self = this;
+                setTimeout(function() {
+                    self.animateGameOverTally();
+                }, 1000);
+            },
+
+            animateGameOverTally() {
+                var self = this;
+                var targetElement = document.getElementById('finalScore');
+                var targetRect = targetElement.getBoundingClientRect();
+                var targetX = targetRect.left + targetRect.width / 2;
+                var targetY = targetRect.top + targetRect.height / 2;
+
+                var quickElement = document.getElementById('tallyQuickBonus');
+                var preciseElement = document.getElementById('tallyPreciseBonus');
+
+                var animationsCount = 0;
+                var totalAnimations = 0;
+
+                if (this.quickBonusPoints > 0) totalAnimations++;
+                if (this.preciseBonusPoints > 0) totalAnimations++;
+
+                // Helper to create and fly the element
+                var fly = function(originElement, val, bonusType) {
+                    var rect = originElement.getBoundingClientRect();
+                    var startX = rect.left + rect.width / 2;
+                    var startY = rect.top + rect.height / 2;
+
+                    var flyer = document.createElement('div');
+                    flyer.className = 'flying-bonus';
+                    flyer.textContent = "+" + val;
+                    flyer.style.left = startX + 'px';
+                    flyer.style.top = startY + 'px';
+                    document.body.appendChild(flyer);
+
+                    var startTime = performance.now();
+                    var duration = 800; // 0.8 seconds
+
+                    var anim = function(now) {
+                        var elapsed = now - startTime;
+                        var progress = Math.min(elapsed / duration, 1);
+                        var eased = 1 - Math.pow(1 - progress, 3); // Cubic ease-out
+
+                        var x = startX + (targetX - startX) * eased;
+                        var y = startY + (targetY - startY) * eased;
+
+                        flyer.style.left = x + 'px';
+                        flyer.style.top = y + 'px';
+                        flyer.style.transform = "scale(" + (1 + (1 - progress) * 0.5) + ")";
+                        flyer.style.opacity = 1 - progress * 0.3;
+
+                        if (progress < 1) {
+                            requestAnimationFrame(anim);
+                        } else {
+                            flyer.remove();
+                            originElement.style.textDecoration = "line-through";
+                            originElement.style.opacity = "0.5";
+                            
+                            animationsCount++;
+                            if (animationsCount === totalAnimations) {
+                                // Once all flies land, transition to total score
+                                self.animateGameOverScoreTally();
+                            }
+                        }
+                    };
+                    requestAnimationFrame(anim);
+                };
+
+                if (this.quickBonusPoints > 0) {
+                    fly(quickElement, this.quickBonusPoints, "quick");
+                }
+                if (this.preciseBonusPoints > 0) {
+                    fly(preciseElement, this.preciseBonusPoints, "precise");
+                }
+
+                // If no bonuses were earned at all, transition immediately
+                if (totalAnimations === 0) {
+                    this.animateGameOverScoreTally();
+                }
+            },
+
+            animateGameOverScoreTally() {
+                var self = this;
+                var startScore = this.baseScore;
+                var endScore = this.score;
+                var duration = 1200;
+                var startTime = performance.now();
+                var finalScoreLabel = document.getElementById('finalScore');
+                var finalRankLabel = document.getElementById('finalRank');
+
+                finalScoreLabel.style.color = "var(--accent)";
+
+                var animate = function(currentTime) {
+                    var elapsed = currentTime - startTime;
+                    var progress = Math.min(elapsed / duration, 1);
+                    var eased = 1 - Math.pow(1 - progress, 3); // Matching score transitions
+                    var curVal = Math.round(startScore + (endScore - startScore) * eased);
+                    
+                    finalScoreLabel.textContent = curVal;
+                    finalRankLabel.textContent = self.getRankInfo(curVal).name;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                };
+                requestAnimationFrame(animate);
             },
 
             returnToMenu() {
+                // Restore styling variables for the next run
+                document.getElementById('tallyQuickBonus').style.textDecoration = "none";
+                document.getElementById('tallyQuickBonus').style.opacity = "1";
+                document.getElementById('tallyPreciseBonus').style.textDecoration = "none";
+                document.getElementById('tallyPreciseBonus').style.opacity = "1";
+                
+                // Hide any leftover active in-game bonus notifications
+                document.getElementById('quickBonusNotify').classList.remove('show');
+                document.getElementById('preciseBonusNotify').classList.remove('show');
+                
                 this.showScreen('menuScreen');
             }
         };
@@ -820,7 +1285,7 @@
             game._lastGeneratedNumber = game.currentNumber;
         };
 
-        // Dark mode
+        // Dark mode setup
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.classList.add('dark');
         }
@@ -836,4 +1301,3 @@
     </script>
 </body>
 </html>
-
