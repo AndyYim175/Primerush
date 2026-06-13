@@ -44,7 +44,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto; /* Allows natural scroll behavior when panels exceed screen height */
+            padding: 30px 0;   /* Keeps top and bottom content away from screen edge */
             transition: background 0.3s;
         }
 
@@ -71,8 +73,9 @@
 
         .menu-subtitle {
             font-size: 1.1rem;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
             color: var(--fg-dim);
+            line-height: 1.6;
         }
 
         .menu-buttons {
@@ -93,7 +96,7 @@
             cursor: pointer;
             border-radius: 8px;
             transition: all 0.2s;
-            min-width: 200px;
+            min-width: 240px;
         }
 
         .btn:hover { transform: scale(1.05); filter: brightness(1.1); }
@@ -103,6 +106,12 @@
             background: var(--button-bg);
             color: var(--fg);
             border: 2px solid var(--fg-dim);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #ffffff;
+            border: none;
         }
 
         /* ── Settings / Stats ── */
@@ -209,6 +218,57 @@
             margin-top: 1.5rem;
         }
 
+        /* ── Custom Confirmation Modal ── */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-card {
+            background: var(--card-bg);
+            border: 2px solid var(--danger);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(255, 68, 68, 0.2);
+        }
+
+        .modal-card h3 {
+            color: var(--danger);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .modal-card p {
+            font-size: 1rem;
+            color: var(--fg);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 0.6rem 1.5rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            border: none;
+        }
+
         /* ── Game ── */
         .game-screen {
             display: flex;
@@ -224,12 +284,36 @@
             padding: 0 10px;
         }
 
-        .lives { display: flex; gap: 8px; }
+        .lives { display: flex; gap: 8px; align-items: center; }
 
         .heart {
             width: 24px; height: 24px;
             color: var(--danger);
             font-size: 24px;
+        }
+
+        .btn-exit-practice {
+            background: var(--button-bg);
+            color: var(--fg);
+            border: 2px solid var(--fg-dim);
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-exit-practice:hover {
+            background: var(--button-hover);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-exit-practice.active {
+            background: var(--accent) !important;
+            color: var(--bg) !important;
+            border-color: var(--accent) !important;
         }
 
         .stats {
@@ -400,6 +484,47 @@
             transform: translateX(0);
         }
 
+        /* ── Sliding Zen Config Sidebar ── */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 499;
+            opacity: 0;
+            visibility: hidden; /* Fixes shades of black and clicks blocking when hidden */
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .sidebar-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 320px;
+            height: 100%;
+            background: var(--card-bg);
+            border-left: 3px solid var(--accent);
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+            transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s;
+            z-index: 500;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            visibility: hidden; /* Avoids layers rendering when off-screen */
+        }
+
+        .sidebar.open {
+            right: 0;
+            visibility: visible;
+        }
+
         /* ── Game Over ── */
         .game-over-screen { text-align: center; }
 
@@ -412,7 +537,6 @@
         .final-stats { font-size: 1.5rem; margin-bottom: 2rem; }
         .final-stats div { margin: 0.8rem 0; }
 
-        /* Extra Bonuses Tally Panel on Game Over */
         .bonus-tally-container {
             background: var(--card-bg);
             border-radius: 12px;
@@ -495,14 +619,62 @@
     </style>
 </head>
 <body>
+    <!-- Custom Modal Dialog (Safe replacement for native confirm) -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-card">
+            <h3>Reset Zen Progress?</h3>
+            <p>This action is permanent and cannot be undone. All of your saved Zen lifetime scores and ranks will be completely wiped.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-secondary" onclick="game.closeConfirmation()">Cancel</button>
+                <button class="modal-btn btn-danger" onclick="game.executeZenDelete()">Delete Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Zen Sliding Config Sidebar -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="game.closeZenSidebar()"></div>
+    <div class="sidebar" id="zenSidebar">
+        <h3 style="color: var(--accent); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; border-bottom: 2px solid var(--accent); padding-bottom: 8px;">Settings</h3>
+        
+        <!-- Segmented 3-Button Prime Pool Select -->
+        <div style="text-align: left;">
+            <span class="setting-label" style="display: block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-dim); margin-bottom: 8px;">Prime Pool</span>
+            <div style="display: flex; gap: 6px;">
+                <button id="poolBtn1" class="btn-exit-practice" style="flex: 1; padding: 10px 4px; font-size: 0.75rem;" onclick="game.setZenPool(1)">Lvl 1<br>(2-7)</button>
+                <button id="poolBtn2" class="btn-exit-practice" style="flex: 1; padding: 10px 4px; font-size: 0.75rem;" onclick="game.setZenPool(2)">Lvl 2<br>(2-13)</button>
+                <button id="poolBtn3" class="btn-exit-practice" style="flex: 1; padding: 10px 4px; font-size: 0.75rem;" onclick="game.setZenPool(3)">Lvl 3<br>(2-23)</button>
+            </div>
+        </div>
+
+        <!-- Tier Slider expanded to 20 -->
+        <div style="text-align: left;">
+            <span class="setting-label" style="display: block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-dim); margin-bottom: 8px;">Spawn Tier</span>
+            <div class="slider-row" style="margin-bottom: 8px;">
+                <input type="range" id="sidebarTierSlider" min="1" max="20" step="1" value="1" oninput="game.setZenTier(this.value)" style="width: 100%;">
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                <span>Tier: <span id="sidebarTierVal" style="color: var(--accent); font-weight: bold;">1</span></span>
+                <span>Cap: <span id="sidebarCapVal" style="color: var(--accent); font-weight: bold;">100</span></span>
+            </div>
+        </div>
+
+        <div style="margin-top: auto;">
+            <button class="btn btn-secondary" style="min-width: unset; width: 100%; font-size: 1rem; padding: 10px;" onclick="game.closeZenSidebar()">RESUME</button>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Menu -->
         <div class="screen active" id="menuScreen">
             <div class="menu-screen">
                 <div class="title">Prime 𝑹𝑼𝑺𝑯</div>
-                <div class="menu-subtitle">High Score: <span id="menuHighScore">0</span> <span id="menuHighScoreRank" style="color: var(--accent); font-weight: bold;">(F)</span></div>
+                <div class="menu-subtitle">
+                    High Score: <span id="menuHighScore">0</span> <span id="menuHighScoreRank" style="color: var(--accent); font-weight: bold;">(F)</span><br>
+                    Zen Score: <span id="menuZenHighScore" style="color: var(--accent);">0</span> <span id="menuZenHighScoreRank" style="color: var(--accent); font-weight: bold;">(F)</span>
+                </div>
                 <div class="menu-buttons">
-                    <button class="btn" onclick="game.startGame()">START</button>
+                    <button class="btn" onclick="game.startGame('classic')">START</button>
+                    <button class="btn btn-secondary" onclick="game.startGame('zen')">Zen</button>
                     <button class="btn btn-secondary" onclick="game.showScreen('settingsScreen'); game.refreshSettings()">SETTINGS</button>
                 </div>
             </div>
@@ -514,8 +686,9 @@
                 <div class="settings-title">SETTINGS</div>
 
                 <div class="settings-section">
-                    <h3>Tile Size</h3>
+                    <h3>General Settings</h3>
                     <div class="setting-row">
+                        <span class="setting-label">Tile Size</span>
                         <div class="slider-row">
                             <input type="range" id="tileSizeSlider" min="60" max="150" step="5" value="120" oninput="game.onTileSizeChange(this.value)">
                             <span class="setting-value" id="tileSizeValue">80</span>
@@ -524,7 +697,7 @@
                 </div>
 
                 <div class="settings-section">
-                    <h3>Your stats</h3>
+                    <h3>Stats</h3>
                     <div class="stat-row">
                         <span class="stat-label">Highest Score</span>
                         <span class="stat-value" id="statHighScore">0</span>
@@ -532,6 +705,14 @@
                     <div class="stat-row">
                         <span class="stat-label">Highest Rank</span>
                         <span class="stat-value" id="statHighestRank">F</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Zen Score</span>
+                        <span class="stat-value" id="statZenHighScore">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Zen Highest Rank</span>
+                        <span class="stat-value" id="statZenHighestRank">F</span>
                     </div>
                     <div class="stat-row">
                         <span class="stat-label">Total Defeated</span>
@@ -544,6 +725,14 @@
                     <div class="stat-row">
                         <span class="stat-label">Highest Number</span>
                         <span class="stat-value" id="statHighestNumber">0</span>
+                    </div>
+                </div>
+
+                <div class="settings-section" style="border: 1px dashed var(--danger);">
+                    <h3>Danger Zone</h3>
+                    <div class="setting-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                        <span class="stat-label" style="text-align: center; font-size: 0.85rem;">Reset persistent practice metrics</span>
+                        <button class="btn btn-danger" style="min-width: unset; width: 100%; font-size: 1rem; padding: 0.6rem 1rem;" onclick="game.showConfirmation()">Delete Zen Data</button>
                     </div>
                 </div>
 
@@ -576,7 +765,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="time-bar-container">
+                <div class="time-bar-container" id="timeBarContainer">
                     <div class="time-bar" id="timeBar"></div>
                 </div>
                 <div class="number-display" id="numberDisplay">1</div>
@@ -587,7 +776,7 @@
         <!-- Game Over -->
         <div class="screen" id="gameOverScreen">
             <div class="game-over-screen">
-                <div class="game-over-title">GAME OVER!</div>
+                <div class="game-over-title" id="gameOverTitle">GAME OVER</div>
                 
                 <div class="final-stats">
                     <div>Final Score: <span id="finalScore" style="transition: color 0.3s;">0</span></div>
@@ -597,13 +786,13 @@
 
                 <!-- Extra Bonuses Earned Summary -->
                 <div class="bonus-tally-container" id="bonusTallyContainer">
-                    <div class="bonus-tally-title">Extra Bonuses</div>
+                    <div class="bonus-tally-title">Extra Performance Bonuses</div>
                     <div class="bonus-tally-row">
-                        <span>Quick Bonus:</span>
+                        <span>⚡ Quick Bonus:</span>
                         <span class="bonus-tally-val" id="tallyQuickBonus">+0</span>
                     </div>
                     <div class="bonus-tally-row">
-                        <span>Precise Bonus:</span>
+                        <span>🎯 Precise Bonus:</span>
                         <span class="bonus-tally-val" id="tallyPreciseBonus">+0</span>
                     </div>
                 </div>
@@ -656,6 +845,7 @@
             animationFrame: null,
             scoreTransition: null,
             isGameOver: false,         // State-guard to completely prevent double Game Overs
+            gameMode: 'classic',       // 'classic' or 'zen'
 
             // Performance metrics tracking
             currentNumberStartTime: 0,
@@ -669,9 +859,14 @@
             // Persistent data
             tileSize: 80,
             highScore: 0,
+            zenHighScore: 0,
             totalDefeated: 0,
             sumDefeated: 0,
             highestNumber: 0,
+
+            // Zen session properties (Non-persistent in-memory)
+            zenSpawnLevel: 1,
+            zenSpawnTier: 1,
 
             init() {
                 this.loadSave();
@@ -683,6 +878,7 @@
                 const data = storage.get(SAVE_KEY, {});
                 this.tileSize = data.tileSize || 80;
                 this.highScore = data.highScore || 0;
+                this.zenHighScore = data.zenHighScore || 0;
                 this.totalDefeated = data.totalDefeated || 0;
                 this.sumDefeated = data.sumDefeated || 0;
                 this.highestNumber = data.highestNumber || 0;
@@ -692,6 +888,7 @@
                 storage.set(SAVE_KEY, {
                     tileSize: this.tileSize,
                     highScore: this.highScore,
+                    zenHighScore: this.zenHighScore,
                     totalDefeated: this.totalDefeated,
                     sumDefeated: this.sumDefeated,
                     highestNumber: this.highestNumber
@@ -714,7 +911,9 @@
                 document.getElementById('tileSizeSlider').value = this.tileSize;
                 document.getElementById('tileSizeValue').textContent = this.tileSize;
                 document.getElementById('statHighScore').textContent = this.highScore;
-                document.getElementById('statHighestRank').textContent = this.getRankInfo(this.highScore).name;
+                document.getElementById('statHighestRank').textContent = this.getRankInfo(this.highScore, 'classic').name;
+                document.getElementById('statZenHighScore').textContent = this.zenHighScore;
+                document.getElementById('statZenHighestRank').textContent = this.getRankInfo(this.zenHighScore, 'zen').name;
                 document.getElementById('statTotalDefeated').textContent = this.totalDefeated;
                 document.getElementById('statSumDefeated').textContent = this.sumDefeated;
                 document.getElementById('statHighestNumber').textContent = this.highestNumber;
@@ -722,7 +921,25 @@
 
             updateMenuStats() {
                 document.getElementById('menuHighScore').textContent = this.highScore;
-                document.getElementById('menuHighScoreRank').textContent = "(" + this.getRankInfo(this.highScore).name + ")";
+                document.getElementById('menuHighScoreRank').textContent = "(" + this.getRankInfo(this.highScore, 'classic').name + ")";
+                document.getElementById('menuZenHighScore').textContent = this.zenHighScore;
+                document.getElementById('menuZenHighScoreRank').textContent = "(" + this.getRankInfo(this.zenHighScore, 'zen').name + ")";
+            },
+
+            showConfirmation() {
+                document.getElementById('confirmModal').style.display = 'flex';
+            },
+
+            closeConfirmation() {
+                document.getElementById('confirmModal').style.display = 'none';
+            },
+
+            executeZenDelete() {
+                this.zenHighScore = 0;
+                this.persist();
+                this.refreshSettings();
+                this.updateMenuStats();
+                this.closeConfirmation();
             },
 
             showScreen(screenId) {
@@ -730,64 +947,191 @@
                 document.getElementById(screenId).classList.add('active');
             },
 
-            getRankInfo(score) {
-                const tiers = [
-                    { name: "F", min: 0, max: 200 },
-                    { name: "D-", min: 200, max: 400 },
-                    { name: "D", min: 400, max: 600 },
-                    { name: "D+", min: 600, max: 750 },
-                    { name: "C-", min: 750, max: 900 },
-                    { name: "C", min: 900, max: 1050 },
-                    { name: "C+", min: 1050, max: 1200 },
-                    { name: "B-", min: 1200, max: 1350 },
-                    { name: "B", min: 1350, max: 1500 },
-                    { name: "B+", min: 1500, max: 1600 },
-                    { name: "A-", min: 1600, max: 1700 },
-                    { name: "A", min: 1700, max: 1800 },
-                    { name: "A+", min: 1800, max: 1900 },
-                    { name: "S-", min: 1900, max: 2000 },
-                    { name: "S", min: 2000, max: 2250 }
-                ];
+            getRankInfo(score, mode) {
+                if (mode !== 'zen' && this.gameMode !== 'zen') {
+                    const tiers = [
+                        { name: "F", min: 0, max: 200 },
+                        { name: "D-", min: 200, max: 400 },
+                        { name: "D", min: 400, max: 600 },
+                        { name: "D+", min: 600, max: 750 },
+                        { name: "C-", min: 750, max: 900 },
+                        { name: "C", min: 900, max: 1050 },
+                        { name: "C+", min: 1050, max: 1200 },
+                        { name: "B-", min: 1200, max: 1350 },
+                        { name: "B", min: 1350, max: 1500 },
+                        { name: "B+", min: 1500, max: 1600 },
+                        { name: "A-", min: 1600, max: 1700 },
+                        { name: "A", min: 1700, max: 1800 },
+                        { name: "A+", min: 1800, max: 1900 },
+                        { name: "S-", min: 1900, max: 2000 },
+                        { name: "S", min: 2000, max: 2250 }
+                    ];
 
-                if (score >= 5000) {
-                    return { name: "X", percent: 100 };
-                }
-
-                if (score > 2250) {
-                    const diff = score - 2250;
-                    const numPluses = Math.floor(diff / 250) + 1;
-                    const rankName = "S" + "+".repeat(numPluses);
-                    const currentMin = 2250 + (numPluses - 1) * 250;
-                    const currentMax = Math.min(5000, 2250 + numPluses * 250);
-                    const range = currentMax - currentMin;
-                    const progress = range > 0 ? ((score - currentMin) / range) * 100 : 100;
-                    return { name: rankName, percent: progress };
-                }
-
-                for (let i = 0; i < tiers.length; i++) {
-                    const t = tiers[i];
-                    if (score >= t.min && score <= t.max) {
-                        const range = t.max - t.min;
-                        const progress = range > 0 ? ((score - t.min) / range) * 100 : 0;
-                        return { name: t.name, percent: progress };
+                    if (score >= 5000) {
+                        return { name: "X", percent: 100 };
                     }
-                }
 
-                return { name: "F", percent: 0 };
+                    if (score > 2250) {
+                        const diff = score - 2250;
+                        const numPluses = Math.floor(diff / 250) + 1;
+                        const rankName = "S" + "+".repeat(numPluses);
+                        const currentMin = 2250 + (numPluses - 1) * 250;
+                        const currentMax = Math.min(5000, 2250 + numPluses * 250);
+                        const range = currentMax - currentMin;
+                        const progress = range > 0 ? ((score - currentMin) / range) * 100 : 100;
+                        return { name: rankName, percent: progress };
+                    }
+
+                    for (let i = 0; i < tiers.length; i++) {
+                        const t = tiers[i];
+                        if (score >= t.min && score <= t.max) {
+                            const range = t.max - t.min;
+                            const progress = range > 0 ? ((score - t.min) / range) * 100 : 0;
+                            return { name: t.name, percent: progress };
+                        }
+                    }
+
+                    return { name: "F", percent: 0 };
+                } else {
+                    // ZEN RANK SCALING
+                    const tiers = [
+                        { name: "F", min: 0, max: 200 },
+                        { name: "D-", min: 200, max: 400 },
+                        { name: "D", min: 400, max: 600 },
+                        { name: "D+", min: 600, max: 800 },
+                        { name: "C-", min: 800, max: 1200 },
+                        { name: "C", min: 1200, max: 1600 },
+                        { name: "C+", min: 1600, max: 2000 },
+                        { name: "B-", min: 2000, max: 3000 },
+                        { name: "B", min: 3000, max: 4000 },
+                        { name: "B+", min: 4000, max: 5000 },
+                        { name: "A-", min: 5000, max: 7500 },
+                        { name: "A", min: 7500, max: 10000 },
+                        { name: "A+", min: 10000, max: 12500 },
+                        { name: "S-", min: 12500, max: 16250 },
+                        { name: "S", min: 16250, max: 20000 }
+                    ];
+
+                    if (score >= 50000) {
+                        return { name: "X", percent: 100 };
+                    }
+
+                    if (score > 20000) {
+                        const diff = score - 20000;
+                        const numPluses = Math.floor(diff / 5000) + 1;
+                        const rankName = "S" + "+".repeat(numPluses);
+                        const currentMin = 20000 + (numPluses - 1) * 5000;
+                        const currentMax = Math.min(50000, 20000 + numPluses * 5000);
+                        const range = currentMax - currentMin;
+                        const progress = range > 0 ? ((score - currentMin) / range) * 100 : 100;
+                        return { name: rankName, percent: progress };
+                    }
+
+                    for (let i = 0; i < tiers.length; i++) {
+                        const t = tiers[i];
+                        if (score >= t.min && score <= t.max) {
+                            const range = t.max - t.min;
+                            const progress = range > 0 ? ((score - t.min) / range) * 100 : 0;
+                            return { name: t.name, percent: progress };
+                        }
+                    }
+
+                    return { name: "F", percent: 0 };
+                }
             },
 
-            startGame() {
-                this.lives = 5;
-                this.score = 0;
-                this.baseScore = 0;
-                this.displayedScore = 0;
-                this.displayedBaseScore = 0;
+            openZenSidebar() {
+                // Populate current live session settings in the sidebar
+                document.getElementById('sidebarTierSlider').value = this.zenSpawnTier;
+                this.updateSidebarUI();
+
+                // Show elements and trigger CSS transitions
+                document.getElementById('zenSidebar').classList.add('open');
+                document.getElementById('sidebarOverlay').classList.add('open');
+            },
+
+            closeZenSidebar() {
+                document.getElementById('zenSidebar').classList.remove('open');
+                document.getElementById('sidebarOverlay').classList.remove('open');
+            },
+
+            setZenPool(lvl) {
+                this.zenSpawnLevel = lvl;
+                // Highlight active button
+                for (let i = 1; i <= 3; i++) {
+                    const btn = document.getElementById('poolBtn' + i);
+                    if (i === lvl) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            },
+
+            setZenTier(tier) {
+                this.zenSpawnTier = parseInt(tier);
+                this.updateSidebarUI();
+            },
+
+            updateSidebarUI() {
+                document.getElementById('sidebarTierVal').textContent = this.zenSpawnTier;
+                const calculatedCap = Math.round(100 * Math.pow(Math.pow(1.25, 5), this.zenSpawnTier - 1));
+                document.getElementById('sidebarCapVal').textContent = calculatedCap.toLocaleString();
+
+                // Highlight active pool buttons
+                for (let i = 1; i <= 3; i++) {
+                    const btn = document.getElementById('poolBtn' + i);
+                    if (i === this.zenSpawnLevel) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            },
+
+            startGame(mode) {
+                this.gameMode = mode || 'classic';
                 this.defeated = 0;
                 this.quickBonusPoints = 0;
                 this.preciseBonusPoints = 0;
                 this.isGameOver = false;
+
+                // Reset session properties if beginning fresh Zen Mode practice
+                if (this.gameMode === 'zen') {
+                    this.zenSpawnLevel = 1;
+                    this.zenSpawnTier = 1;
+                    
+                    this.score = this.zenHighScore;
+                    this.baseScore = this.zenHighScore;
+                    this.displayedScore = this.zenHighScore;
+                    this.displayedBaseScore = this.zenHighScore;
+                } else {
+                    this.score = 0;
+                    this.baseScore = 0;
+                    this.displayedScore = 0;
+                    this.displayedBaseScore = 0;
+                }
+
+                // Header adjustments: Swap hearts block for exiting controls in Zen mode
+                const livesContainer = document.getElementById('livesContainer');
+                if (this.gameMode === 'zen') {
+                    livesContainer.innerHTML = `
+                        <button class="btn-exit-practice" onclick="game.exitZenPractice()">EXIT</button>
+                        <button class="btn-exit-practice" style="margin-left: 8px; border-color: var(--accent); color: var(--accent);" onclick="game.openZenSidebar()">CONFIG</button>
+                    `;
+                } else {
+                    this.lives = 5;
+                    this.updateLives();
+                }
+
+                const timeBarContainer = document.getElementById('timeBarContainer');
+                if (this.gameMode === 'zen') {
+                    timeBarContainer.style.display = 'none';
+                } else {
+                    timeBarContainer.style.display = 'block';
+                }
+
                 this.showScreen('gameScreen');
-                this.updateLives();
                 this.updateScore();
                 this.nextNumber();
             },
@@ -816,16 +1160,42 @@
             },
 
             generateNumber() {
-                var cap = this.calculatePhase();
-                var num = 1;
-                this._currentNumberFactorsCount = 0;
-                while (true) {
-                    var prime = this.primes[Math.floor(Math.random() * this.primes.length)];
-                    if (num * prime > cap) break;
-                    num *= prime;
-                    this._currentNumberFactorsCount++;
+                if (this.gameMode === 'zen') {
+                    // Pull values instantly from the non-saved Zen configs
+                    if (this.zenSpawnLevel === 1) {
+                        this.primes = [2, 3, 5, 7];
+                        this.phase = 1;
+                    } else if (this.zenSpawnLevel === 2) {
+                        this.primes = [2, 3, 5, 7, 11, 13];
+                        this.phase = 2;
+                    } else {
+                        this.primes = [2, 3, 5, 7, 11, 13, 17, 19, 23];
+                        this.phase = 3;
+                    }
+
+                    // Max tier formula: 100 * (1.25^5)^(tier - 1) up to Tier 20
+                    const cap = Math.round(100 * Math.pow(Math.pow(1.25, 5), this.zenSpawnTier - 1));
+                    var num = 1;
+                    this._currentNumberFactorsCount = 0;
+                    while (true) {
+                        var prime = this.primes[Math.floor(Math.random() * this.primes.length)];
+                        if (num * prime > cap) break;
+                        num *= prime;
+                        this._currentNumberFactorsCount++;
+                    }
+                    return num;
+                } else {
+                    var cap = this.calculatePhase();
+                    var num = 1;
+                    this._currentNumberFactorsCount = 0;
+                    while (true) {
+                        var prime = this.primes[Math.floor(Math.random() * this.primes.length)];
+                        if (num * prime > cap) break;
+                        num *= prime;
+                        this._currentNumberFactorsCount++;
+                    }
+                    return num;
                 }
-                return num;
             },
 
             nextNumber() {
@@ -859,8 +1229,14 @@
 
             attack(prime, btn) {
                 if (this.currentNumber % prime === 0 && Number.isInteger(this.currentNumber / prime)) {
-                    var timeRatio = this.timeRemaining / this.maxTime;
-                    var points = Math.ceil(10 * this.difficulty * Math.pow(timeRatio, 0.55));
+                    var points;
+                    if (this.gameMode === 'zen') {
+                        // Max points on Zen mode: scale directly with active configuration tier
+                        points = Math.ceil(10 + 2 * this.zenSpawnTier);
+                    } else {
+                        var timeRatio = this.timeRemaining / this.maxTime;
+                        points = Math.ceil(10 * this.difficulty * Math.pow(timeRatio, 0.55));
+                    }
                     
                     // Track tap timestamp relative to start
                     this.attackTimes.push(performance.now() - this.currentNumberStartTime);
@@ -876,6 +1252,13 @@
                         
                         self.baseScore += points;
                         self.score += points;
+
+                        // Save zen score immediately on change so progress persists through browser exit/refresh
+                        if (self.gameMode === 'zen') {
+                            self.zenHighScore = self.score;
+                            self.persist();
+                        }
+
                         self.animateScore();
                         self.updateNumberDisplay();
                         if (self.currentNumber === 1) {
@@ -920,9 +1303,10 @@
                 requestAnimationFrame(animate);
             },
 
-            // Modern monospaced smooth rollup notifier featuring cubic-eased tally increase
-            // Wait for sliding transition (400ms) to complete before rolling up the values!
             animateInGameBonus(type, oldVal, newVal) {
+                // Cancel bonuses visually and functionally when playing Zen Mode
+                if (this.gameMode === 'zen') return;
+
                 const elId = type === 'quick' ? 'quickBonusNotify' : 'preciseBonusNotify';
                 const label = type === 'quick' ? 'Quick: +' : 'Precise: +';
                 const el = document.getElementById(elId);
@@ -951,7 +1335,6 @@
                         if (progress < 1) {
                             el._animFrame = requestAnimationFrame(updateValue);
                         } else {
-                            // Keep on-screen momentarily (250ms) before returning to the left
                             el._hideTimeout = setTimeout(() => {
                                 el.classList.remove('show');
                             }, 250);
@@ -1003,40 +1386,43 @@
                 var totalDurationSec = (performance.now() - this.currentNumberStartTime) / 1000;
                 var factors = this._currentNumberFactorsCount;
 
-                // ── 1. Quick Bonus ──
-                var targetTime = 1.8 + (0.3 * factors);
-                if (!this.hasError && totalDurationSec <= targetTime) {
-                    var diff = targetTime - totalDurationSec;
-                    var intervals = diff / 0.1;
-                    var quickPoints = Math.floor(3 + intervals);
-                    this.quickBonusPoints += quickPoints;
-                    this.score += quickPoints;
-                    this.animateInGameBonus('quick', oldQuick, this.quickBonusPoints);
-                }
-
-                // ── 2. Precise Bonus ──
-                var q = this.defeated; 
-                if (!this.hasError && this.attackTimes.length >= 2) {
-                    var precise = true;
-                    for (var i = 1; i < this.attackTimes.length; i++) {
-                        var interval = (this.attackTimes[i] - this.attackTimes[i-1]) / 1000;
-                        if (interval > 0.7) {
-                            precise = false;
-                            break;
-                        }
+                // Extra bonuses are completely disabled in Zen Mode
+                if (this.gameMode !== 'zen') {
+                    // ── 1. Quick Bonus ──
+                    var targetTime = 1.8 + (0.3 * factors);
+                    if (!this.hasError && totalDurationSec <= targetTime) {
+                        var diff = targetTime - totalDurationSec;
+                        var intervals = diff / 0.1;
+                        var quickPoints = Math.floor(3 + intervals);
+                        this.quickBonusPoints += quickPoints;
+                        this.score += quickPoints;
+                        this.animateInGameBonus('quick', oldQuick, this.quickBonusPoints);
                     }
-                    if (precise) {
-                        var precisePoints = 0;
-                        if (q <= 15) {
-                            precisePoints = 3 + Math.floor(q / 2);
-                        } else if (q <= 30) {
-                            precisePoints = 6 + Math.floor((q - 15) / 2);
-                        } else {
-                            precisePoints = 10 + Math.floor((q - 30) / 2);
+
+                    // ── 2. Precise Bonus ──
+                    var q = this.defeated; 
+                    if (!this.hasError && this.attackTimes.length >= 2) {
+                        var precise = true;
+                        for (var i = 1; i < this.attackTimes.length; i++) {
+                            var interval = (this.attackTimes[i] - this.attackTimes[i-1]) / 1000;
+                            if (interval > 0.7) {
+                                precise = false;
+                                break;
+                            }
                         }
-                        this.preciseBonusPoints += precisePoints;
-                        this.score += precisePoints;
-                        this.animateInGameBonus('precise', oldPrecise, this.preciseBonusPoints);
+                        if (precise) {
+                            var precisePoints = 0;
+                            if (q <= 15) {
+                                precisePoints = 3 + Math.floor(q / 2);
+                            } else if (q <= 30) {
+                                precisePoints = 6 + Math.floor((q - 15) / 2);
+                            } else {
+                                precisePoints = 10 + Math.floor((q - 30) / 2);
+                            }
+                            this.preciseBonusPoints += precisePoints;
+                            this.score += precisePoints;
+                            this.animateInGameBonus('precise', oldPrecise, this.preciseBonusPoints);
+                        }
                     }
                 }
 
@@ -1055,18 +1441,16 @@
             },
 
             loseLife() {
-                this.lives--;
                 this.hasError = true; // Negate any bonus possibility for this factor
-                this.updateLives();
+
                 var container = document.querySelector('.container');
                 container.classList.add('shake', 'flash');
                 setTimeout(function () {
                     container.classList.remove('shake', 'flash');
                 }, 300);
 
-                if (this.lives <= 0) {
-                    this.gameOver();
-                } else {
+                if (this.gameMode === 'zen') {
+                    // ZEN MODE: No life loss. Spawn a fresh number immediately.
                     if (this.animationFrame) {
                         cancelAnimationFrame(this.animationFrame);
                     }
@@ -1074,6 +1458,20 @@
                     setTimeout(function () {
                         self.nextNumber();
                     }, 400);
+                } else {
+                    this.lives--;
+                    this.updateLives();
+                    if (this.lives <= 0) {
+                        this.gameOver();
+                    } else {
+                        if (this.animationFrame) {
+                            cancelAnimationFrame(this.animationFrame);
+                        }
+                        var self = this;
+                        setTimeout(function () {
+                            self.nextNumber();
+                        }, 400);
+                    }
                 }
             },
 
@@ -1088,7 +1486,6 @@
                 }
             },
 
-            // In-game score updates solely depend on baseScore
             updateScore() {
                 document.getElementById('scoreDisplay').textContent = this.displayedBaseScore;
                 const rankInfo = this.getRankInfo(this.displayedBaseScore);
@@ -1101,6 +1498,11 @@
             },
 
             startTimer() {
+                // If Zen mode, there is absolutely no timing pressure / timeouts
+                if (this.gameMode === 'zen') {
+                    return;
+                }
+
                 var self = this;
                 var update = function (currentTime) {
                     var delta = currentTime - self.lastTime;
@@ -1119,8 +1521,13 @@
             },
 
             updateTimeBar() {
+                if (this.gameMode === 'zen') return;
                 var percent = (this.timeRemaining / this.maxTime) * 100;
                 document.getElementById('timeBar').style.width = percent + '%';
+            },
+
+            exitZenPractice() {
+                this.gameOver();
             },
 
             gameOver() {
@@ -1132,10 +1539,24 @@
                     cancelAnimationFrame(this.animationFrame);
                 }
                 
-                // Track total final score (including base score AND extra bonuses)
-                if (this.score > this.highScore) {
-                    this.highScore = this.score;
+                // Close sidebar if still open
+                this.closeZenSidebar();
+
+                // Track total final score (including base score AND extra bonuses depending on mode)
+                if (this.gameMode === 'zen') {
+                    if (this.score > this.zenHighScore) {
+                        this.zenHighScore = this.score;
+                    }
+                    document.getElementById('gameOverTitle').textContent = "PRACTICE SESSION COMPLETE";
+                    document.getElementById('bonusTallyContainer').style.display = 'none';
+                } else {
+                    if (this.score > this.highScore) {
+                        this.highScore = this.score;
+                    }
+                    document.getElementById('gameOverTitle').textContent = "GAME OVER";
+                    document.getElementById('bonusTallyContainer').style.display = 'block';
                 }
+                
                 this.persist();
                 this.updateMenuStats();
 
@@ -1154,11 +1575,17 @@
                 
                 this.showScreen('gameOverScreen');
 
-                // Fire the Flying Bonuses Tally sequence exactly once after 1 second
+                // Fire the Flying Bonuses Tally sequence exactly once after 1 second if not in Zen mode
                 var self = this;
-                setTimeout(function() {
-                    self.animateGameOverTally();
-                }, 1000);
+                if (this.gameMode !== 'zen') {
+                    setTimeout(function() {
+                        self.animateGameOverTally();
+                    }, 1000);
+                } else {
+                    setTimeout(function() {
+                        self.animateGameOverScoreTally();
+                    }, 1000);
+                }
             },
 
             animateGameOverTally() {
@@ -1177,7 +1604,6 @@
                 if (this.quickBonusPoints > 0) totalAnimations++;
                 if (this.preciseBonusPoints > 0) totalAnimations++;
 
-                // Helper to create and fly the element
                 var fly = function(originElement, val, bonusType) {
                     var rect = originElement.getBoundingClientRect();
                     var startX = rect.left + rect.width / 2;
@@ -1215,7 +1641,6 @@
                             
                             animationsCount++;
                             if (animationsCount === totalAnimations) {
-                                // Once all flies land, transition to total score
                                 self.animateGameOverScoreTally();
                             }
                         }
@@ -1230,7 +1655,6 @@
                     fly(preciseElement, this.preciseBonusPoints, "precise");
                 }
 
-                // If no bonuses were earned at all, transition immediately
                 if (totalAnimations === 0) {
                     this.animateGameOverScoreTally();
                 }
@@ -1297,6 +1721,7 @@
             }
         });
 
+        // Initialize game on script load
         game.init();
     </script>
 </body>
