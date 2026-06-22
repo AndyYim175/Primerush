@@ -1,4 +1,39 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrimeRush</title>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --fg: #ffffff;
+            --fg-dim: #888888;
+            --accent: #00ff88;
+            --accent-dim: #00cc6a;
+            --danger: #ff4444;
+            --button-bg: #1a1a1a;
+            --button-hover: #2a2a2a;
+            --button-active: #3a3a3a;
+            --card-bg: #111111;
+            --tile-size: 80px;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg: #f5f5f5;
+                --fg: #0a0a0a;
+                --fg-dim: #777777;
+                --accent: #00aa55;
+                --accent-dim: #008844;
+                --danger: #cc3333;
+                --button-bg: #ffffff;
+                --button-hover: #e5e5e5;
+                --button-active: #d5d5d5;
+                --card-bg: #eeeeee;
+            }
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -80,6 +115,561 @@
         }
 
         /* ── Settings / Stats ── */
+        .settings-screen { text-align: center; }
+
+        .settings-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            color: var(--accent);
+        }
+
+        .settings-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .settings-section h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--fg-dim);
+            margin-bottom: 1rem;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.7rem;
+        }
+
+        .setting-row:last-child { margin-bottom: 0; }
+
+        .setting-label { font-size: 1rem; }
+
+        .setting-value {
+            font-weight: bold;
+            color: var(--accent);
+            min-width: 45px;
+            text-align: right;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 140px;
+            height: 6px;
+            background: var(--fg-dim);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--button-bg);
+        }
+
+        .stat-row:last-child { border-bottom: none; }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--fg-dim);
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .back-btn {
+            margin-top: 1.5rem;
+        }
+
+        /* ── Custom Confirmation Modal ── */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-card {
+            background: var(--card-bg);
+            border: 2px solid var(--danger);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(255, 68, 68, 0.2);
+        }
+
+        .modal-card h3 {
+            color: var(--danger);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .modal-card p {
+            font-size: 1rem;
+            color: var(--fg);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 0.6rem 1.5rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            border: none;
+        }
+
+        /* ── Game ── */
+        .game-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .lives { display: flex; gap: 8px; align-items: center; }
+
+        .heart {
+            width: 24px; height: 24px;
+            color: var(--danger);
+            font-size: 24px;
+        }
+
+        .btn-exit-practice {
+            background: var(--button-bg);
+            color: var(--fg);
+            border: 2px solid var(--fg-dim);
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-exit-practice:hover {
+            background: var(--button-hover);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-exit-practice.active {
+            background: var(--accent) !important;
+            color: var(--bg) !important;
+            border-color: var(--accent) !important;
+        }
+
+        .stats {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .score-box {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .rank-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px;
+        }
+
+        .rank-title {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--fg-dim);
+            margin-bottom: 2px;
+        }
+
+        .rank-name-display {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .rank-progress-container {
+            width: 100%;
+            height: 4px;
+            background: var(--button-bg);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .rank-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            transition: width 0.1s ease-out;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            line-height: 1.1;
+        }
+
+        .defeated {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .time-bar-container {
+            height: 8px;
+            background: var(--button-bg);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .time-bar {
+            height: 100%;
+            background: var(--accent);
+            transition: width 0.05s linear;
+        }
+
+        .number-display {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: bold;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .prime-buttons {
+            display: grid;
+            gap: 10px;
+            margin-top: 0.5rem;
+            justify-content: center;
+        }
+
+        .prime-buttons.phase-1 {
+            grid-template-columns: repeat(2, var(--tile-size));
+        }
+
+        .prime-buttons.phase-2 {
+            grid-template-columns: repeat(3, calc(var(--tile-size) * 0.82));
+        }
+
+        .prime-buttons.phase-3 {
+            grid-template-columns: repeat(3, calc(var(--tile-size) * 0.68));
+        }
+
+        .prime-btn {
+            aspect-ratio: 1;
+            background: var(--button-bg);
+            border: 2px solid var(--fg);
+            color: var(--fg);
+            font-size: 1.25rem;
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.15s;
+            position: relative;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .prime-btn:hover { background: var(--button-hover); transform: scale(1.05); }
+        .prime-btn:active { background: var(--button-active); transform: scale(0.95); }
+
+        /* ── Minimalist In-Game Notifications ── */
+        .bonus-container {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+            z-index: 200;
+            align-items: flex-start;
+        }
+
+        .bonus-notify {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1rem;
+            color: var(--accent);
+            opacity: 0;
+            transform: translateX(-120%);
+            transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            pointer-events: none;
+            background: rgba(10, 10, 10, 0.85);
+            padding: 4px 8px;
+            border-left: 3px solid var(--accent);
+        }
+
+        @media (prefers-color-scheme: light) {
+            .bonus-notify {
+                background: rgba(245, 245, 245, 0.85);
+            }
+        }
+
+        .bonus-notify.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* ── Sliding Zen Config Sidebar ── */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 499;
+            opacity: 0;
+            visibility: hidden; /* Fixes shades of black and clicks blocking when hidden */
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .sidebar-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 320px;
+            height: 100%;
+            background: var(--card-bg);
+            border-left: 3px solid var(--accent);
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+            transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s;
+            z-index: 500;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            visibility: hidden; /* Avoids layers rendering when off-screen */
+        }
+
+        .sidebar.open {
+            right: 0;
+            visibility: visible;
+        }
+
+        /* ── Game Over ── */
+        .game-over-screen { text-align: center; }
+
+        .game-over-title {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--danger);
+        }
+
+        .final-stats { font-size: 1.5rem; margin-bottom: 2rem; }
+        .final-stats div { margin: 0.8rem 0; }
+
+        .bonus-tally-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 2rem;
+            border: 1px dashed var(--accent);
+            text-align: left;
+        }
+
+        .bonus-tally-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--fg-dim);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .bonus-tally-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+        .bonus-tally-row:last-child { margin-bottom: 0; }
+
+        .bonus-tally-val {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* ── Animations ── */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        .shake { animation: shake 0.3s; }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .flash { animation: flash 0.2s; }
+
+        @keyframes defeat {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        .defeat { animation: defeat 0.4s; }
+
+        .flying-number {
+            position: fixed;
+            font-size: 2rem;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 101;
+            color: var(--accent);
+        }
+
+        .flying-bonus {
+            position: fixed;
+            font-size: 2.2rem;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 102;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+            transition: transform 0.5s ease-in;
+        }
+
+        @media (max-width: 600px) {
+            .title { font-size: 2rem; }
+            .number-display { font-size: 2rem; min-height: 80px; }
+            .prime-btn { font-size: 1rem; }
+            .btn { padding: 0.8rem 2rem; font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Modal Dialog (Safe replacement for native confirm) -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-card">
+            <h3>Reset Zen Progress?</h3>
+            <p>This action is permanent and cannot be undone. All of your saved Zen lifetime scores and ranks will be completely wiped.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-secondary" onclick="game.closeConfirmation()">Cancel</button>
+                <button class="modal-btn btn-danger" onclick="game.executeZenDelete()">Delete Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Zen Sliding Config Sidebar -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="game.closeZenSidebar()"></div>
+    <div class="sidebar" id="zenSidebar">
+        <h3 style="color: var(--accent); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; border-bottom: 2px solid var(--accent); padding-bottom: 8px;">Settings</h3>
+        
+        <!-- Segmented 3-Button Prime Pool Select -->
+        <div style="text-align: left;">
+            <span class="setting-label" style="display: block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-dim); margin-bottom: 8px;">Prime Pool</span>
+            <div style="display: flex; gap: 6px;">
+                <button id="poolBtn1" class="btn-exit-practice" style="flex: 1; padding: 10px 4px; font-size: 0.75rem;" onclick="game.setZenPool(1)">Lvl 1<br>(2-7)</button>
+                <button id="poolBtn2" class="btn-exit-practice" style="flex: 1; padding: 10px 4px; font-size: 0.75rem;" onclick="game.setZenPool(2)">Lvl 2<br>(2-13)</button>
+                <button id="poolBtn3" class="btn-exit-practice" style="flex: 1; padding: 10px 4px; font-size: 0.75rem;" onclick="game.setZenPool(3)">Lvl 3<br>(2-23)</button>
+            </div>
+        </div>
+
+        <!-- Tier Slider expanded to 20 -->
+        <div style="text-align: left;">
+            <span class="setting-label" style="display: block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-dim); margin-bottom: 8px;">Spawn Tier</span>
+            <div class="slider-row" style="margin-bottom: 8px;">
+                <input type="range" id="sidebarTierSlider" min="1" max="20" step="1" value="1" oninput="game.setZenTier(this.value)" style="width: 100%;">
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                <span>Tier: <span id="sidebarTierVal" style="color: var(--accent); font-weight: bold;">1</span></span>
+                <span>Cap: <span id="sidebarCapVal" style="color: var(--accent); font-weight: bold;">100</span></span>
+            </div>
+        </div>
+
+        <div style="margin-top: auto;">
+            <button class="btn btn-secondary" style="min-width: unset; width: 100%; font-size: 1rem; padding: 10px;" onclick="game.closeZenSidebar()">RESUME</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Menu -->
+        <div class="screen active" id="menuScreen">
+            <div class="menu-screen">
+                <div class="title">Prime 𝑹𝑼𝑺𝑯</div>
+                <div class="menu-subtitle">
+                    /* ── Settings / Stats ── */
         .settings-screen { text-align: center; }
 
         .settings-title {
