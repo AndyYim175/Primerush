@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrimeRush</title>
+    <title>Prime 𝑹𝑼𝑺𝑯</title>
     <style>
         :root {
             --bg: #0a0a0a;
@@ -44,10 +44,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow-x: hidden;
-            overflow-y: auto; /* Allows natural scroll behavior when panels exceed screen height */
-            padding: 30px 0;   /* Keeps top and bottom content away from screen edge */
+            overflow-y: auto;
             transition: background 0.3s;
+            padding: 20px 0;
         }
 
         .container {
@@ -97,6 +96,7 @@
             border-radius: 8px;
             transition: all 0.2s;
             min-width: 240px;
+            text-align: center;
         }
 
         .btn:hover { transform: scale(1.05); filter: brightness(1.1); }
@@ -114,7 +114,7 @@
             border: none;
         }
 
-        /* ── Settings / Stats ── */
+        /* ── Settings, Stats, & Modifiers ── */
         .settings-screen { text-align: center; }
 
         .settings-title {
@@ -193,6 +193,108 @@
             border: none;
         }
 
+        select {
+            background: var(--button-bg);
+            color: var(--fg);
+            border: 2px solid var(--fg-dim);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-family: inherit;
+            font-weight: bold;
+            outline: none;
+        }
+
+        /* Modern Segmented tab switch buttons */
+        .settings-tab-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+        }
+
+        /* Scrollable container for UI-contained settings configuration */
+        .settings-scrollable-content {
+            max-height: 50vh;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .settings-scrollable-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .settings-scrollable-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .settings-scrollable-content::-webkit-scrollbar-thumb {
+            background: var(--button-bg);
+            border-radius: 3px;
+            border: 1px solid var(--fg-dim);
+        }
+
+        .settings-scrollable-content::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* Modifier Adjust Controls */
+        .modifier-adjust-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--button-bg);
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--fg-dim);
+            margin-bottom: 8px;
+        }
+        .modifier-adjust-row:last-child { margin-bottom: 0; }
+
+        .modifier-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            text-align: left;
+            max-width: 70%;
+        }
+        .modifier-name { font-weight: bold; font-size: 0.95rem; }
+        .modifier-desc { font-size: 0.75rem; color: var(--fg-dim); line-height: 1.3; }
+
+        .modifier-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modifier-btn-action {
+            background: var(--button-bg);
+            color: var(--fg);
+            border: 1px solid var(--fg-dim);
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.1s;
+        }
+        .modifier-btn-action:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .modifier-btn-action:active {
+            transform: scale(0.9);
+        }
+
+        .modifier-level-display {
+            font-weight: bold;
+            font-size: 1rem;
+            min-width: 45px;
+            text-align: center;
+        }
+
         .stat-row {
             display: flex;
             justify-content: space-between;
@@ -269,6 +371,47 @@
             border: none;
         }
 
+        /* ── Sliding Zen Config Sidebar ── */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 499;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .sidebar-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 320px;
+            height: 100%;
+            background: var(--card-bg);
+            border-left: 3px solid var(--accent);
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+            transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s;
+            z-index: 500;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            visibility: hidden;
+        }
+
+        .sidebar.open {
+            right: 0;
+            visibility: visible;
+        }
+
         /* ── Game ── */
         .game-screen {
             display: flex;
@@ -289,7 +432,9 @@
         .heart {
             width: 24px; height: 24px;
             color: var(--danger);
-            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-exit-practice {
@@ -444,6 +589,12 @@
         .prime-btn:hover { background: var(--button-hover); transform: scale(1.05); }
         .prime-btn:active { background: var(--button-active); transform: scale(0.95); }
 
+        /* Custom style class for Muscle Memory hides */
+        .prime-btn.hidden-text {
+            color: transparent !important;
+            border-color: var(--fg-dim) !important;
+        }
+
         /* ── Minimalist In-Game Notifications ── */
         .bonus-container {
             position: fixed;
@@ -484,47 +635,6 @@
             transform: translateX(0);
         }
 
-        /* ── Sliding Zen Config Sidebar ── */
-        .sidebar-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            z-index: 499;
-            opacity: 0;
-            visibility: hidden; /* Fixes shades of black and clicks blocking when hidden */
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .sidebar-overlay.open {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .sidebar {
-            position: fixed;
-            top: 0;
-            right: -320px;
-            width: 320px;
-            height: 100%;
-            background: var(--card-bg);
-            border-left: 3px solid var(--accent);
-            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
-            transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s;
-            z-index: 500;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            visibility: hidden; /* Avoids layers rendering when off-screen */
-        }
-
-        .sidebar.open {
-            right: 0;
-            visibility: visible;
-        }
-
         /* ── Game Over ── */
         .game-over-screen { text-align: center; }
 
@@ -537,6 +647,7 @@
         .final-stats { font-size: 1.5rem; margin-bottom: 2rem; }
         .final-stats div { margin: 0.8rem 0; }
 
+        /* Extra Bonuses Tally Panel on Game Over */
         .bonus-tally-container {
             background: var(--card-bg);
             border-radius: 12px;
@@ -604,10 +715,12 @@
             font-size: 2.2rem;
             font-weight: bold;
             pointer-events: none;
-            z-index: 102;
-            color: #ffcc00;
-            text-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+            z-index: 1002;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.4);
             transition: transform 0.5s ease-in;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         @media (max-width: 600px) {
@@ -622,8 +735,8 @@
     <!-- Custom Modal Dialog (Safe replacement for native confirm) -->
     <div class="modal-overlay" id="confirmModal">
         <div class="modal-card">
-            <h3>Reset Zen Progress?</h3>
-            <p>This action is permanent and cannot be undone. All of your saved Zen lifetime scores and ranks will be completely wiped.</p>
+            <h3>Reset Zen & Coin Progress?</h3>
+            <p>This action is permanent and cannot be undone. All of your saved Zen scores, ranks, upgrades, coins, and custom practice settings will be completely wiped.</p>
             <div class="modal-buttons">
                 <button class="modal-btn btn-secondary" onclick="game.closeConfirmation()">Cancel</button>
                 <button class="modal-btn btn-danger" onclick="game.executeZenDelete()">Delete Data</button>
@@ -634,11 +747,11 @@
     <!-- Zen Sliding Config Sidebar -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="game.closeZenSidebar()"></div>
     <div class="sidebar" id="zenSidebar">
-        <h3 style="color: var(--accent); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; border-bottom: 2px solid var(--accent); padding-bottom: 8px;">Settings</h3>
+        <h3 style="color: var(--accent); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; border-bottom: 2px solid var(--accent); padding-bottom: 8px;">Zen Practice Config</h3>
         
-        <!-- Segmented 3-Button Prime Pool Select -->
+        <!-- Segmented Pool Select buttons -->
         <div style="text-align: left;">
-            <span class="setting-label" style="display: block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-dim); margin-bottom: 8px;">Prime Pool</span>
+            <span class="setting-label" style="display: block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-dim); margin-bottom: 8px;">Practice Prime Pool</span>
             <div style="display: flex; gap: 6px;">
                 <button id="poolBtn1" class="btn-exit-practice" style="flex: 1; padding: 10px 4px; font-size: 0.75rem;" onclick="game.setZenPool(1)">Lvl 1<br>(2-7)</button>
                 <button id="poolBtn2" class="btn-exit-practice" style="flex: 1; padding: 10px 4px; font-size: 0.75rem;" onclick="game.setZenPool(2)">Lvl 2<br>(2-13)</button>
@@ -646,9 +759,9 @@
             </div>
         </div>
 
-        <!-- Tier Slider expanded to 20 -->
+        <!-- Tier Slider up to Tier 20 -->
         <div style="text-align: left;">
-            <span class="setting-label" style="display: block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-dim); margin-bottom: 8px;">Spawn Tier</span>
+            <span class="setting-label" style="display: block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-dim); margin-bottom: 8px;">Practice Spawn Tier</span>
             <div class="slider-row" style="margin-bottom: 8px;">
                 <input type="range" id="sidebarTierSlider" min="1" max="20" step="1" value="1" oninput="game.setZenTier(this.value)" style="width: 100%;">
             </div>
@@ -663,635 +776,274 @@
         </div>
     </div>
 
+    <!-- Main Container -->
     <div class="container">
         <!-- Menu -->
         <div class="screen active" id="menuScreen">
             <div class="menu-screen">
-                <div class="title">Prime 𝑹𝑼𝑺𝑯</div>
-                <div class="menu-subtitle">
-                    /* ── Settings / Stats ── */
-        .settings-screen { text-align: center; }
-
-        .settings-title {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 2rem;
-            color: var(--accent);
-        }
-
-        .settings-section {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.2rem 1.5rem;
-            margin-bottom: 1rem;
-            text-align: left;
-        }
-
-        .settings-section h3 {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--fg-dim);
-            margin-bottom: 1rem;
-        }
-
-        .setting-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.7rem;
-        }
-
-        .setting-row:last-child { margin-bottom: 0; }
-
-        .setting-label { font-size: 1rem; }
-
-        .setting-value {
-            font-weight: bold;
-            color: var(--accent);
-            min-width: 45px;
-            text-align: right;
-        }
-
-        .slider-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 140px;
-            height: 6px;
-            background: var(--fg-dim);
-            border-radius: 3px;
-            outline: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: var(--accent);
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: var(--accent);
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-        }
-
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--button-bg);
-        }
-
-        .stat-row:last-child { border-bottom: none; }
-
-        .stat-label {
-            font-size: 0.95rem;
-            color: var(--fg-dim);
-        }
-
-        .stat-value {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--accent);
-        }
-
-        .back-btn {
-            margin-top: 1.5rem;
-        }
-
-        /* ── Custom Confirmation Modal ── */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-card {
-            background: var(--card-bg);
-            border: 2px solid var(--danger);
-            border-radius: 12px;
-            padding: 2rem;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(255, 68, 68, 0.2);
-        }
-
-        .modal-card h3 {
-            color: var(--danger);
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-        }
-
-        .modal-card p {
-            font-size: 1rem;
-            color: var(--fg);
-            margin-bottom: 1.5rem;
-            line-height: 1.5;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-
-        .modal-btn {
-            padding: 0.6rem 1.5rem;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            font-family: inherit;
-            border: none;
-        }
-
-        /* ── Game ── */
-        .game-screen {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            position: relative;
-        }
-
-        .game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 10px;
-        }
-
-        .lives { display: flex; gap: 8px; align-items: center; }
-
-        .heart {
-            width: 24px; height: 24px;
-            color: var(--danger);
-            font-size: 24px;
-        }
-
-        .btn-exit-practice {
-            background: var(--button-bg);
-            color: var(--fg);
-            border: 2px solid var(--fg-dim);
-            border-radius: 6px;
-            padding: 5px 12px;
-            font-size: 0.8rem;
-            font-family: inherit;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        .btn-exit-practice:hover {
-            background: var(--button-hover);
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .btn-exit-practice.active {
-            background: var(--accent) !important;
-            color: var(--bg) !important;
-            border-color: var(--accent) !important;
-        }
-
-        .stats {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .score-box {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-
-        .rank-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 70px;
-        }
-
-        .rank-title {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--fg-dim);
-            margin-bottom: 2px;
-        }
-
-        .rank-name-display {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--accent);
-            line-height: 1;
-        }
-
-        .rank-progress-container {
-            width: 100%;
-            height: 4px;
-            background: var(--button-bg);
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 5px;
-        }
-
-        .rank-progress-bar {
-            height: 100%;
-            width: 0%;
-            background: var(--accent);
-            transition: width 0.1s ease-out;
-        }
-
-        .score {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--accent);
-            line-height: 1.1;
-        }
-
-        .defeated {
-            font-size: 0.9rem;
-            opacity: 0.7;
-        }
-
-        .time-bar-container {
-            height: 8px;
-            background: var(--button-bg);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .time-bar {
-            height: 100%;
-            background: var(--accent);
-            transition: width 0.05s linear;
-        }
-
-        .number-display {
-            text-align: center;
-            font-size: 3rem;
-            font-weight: bold;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-            word-break: break-all;
-            position: relative;
-        }
-
-        .prime-buttons {
-            display: grid;
-            gap: 10px;
-            margin-top: 0.5rem;
-            justify-content: center;
-        }
-
-        .prime-buttons.phase-1 {
-            grid-template-columns: repeat(2, var(--tile-size));
-        }
-
-        .prime-buttons.phase-2 {
-            grid-template-columns: repeat(3, calc(var(--tile-size) * 0.82));
-        }
-
-        .prime-buttons.phase-3 {
-            grid-template-columns: repeat(3, calc(var(--tile-size) * 0.68));
-        }
-
-        .prime-btn {
-            aspect-ratio: 1;
-            background: var(--button-bg);
-            border: 2px solid var(--fg);
-            color: var(--fg);
-            font-size: 1.25rem;
-            font-weight: bold;
-            font-family: inherit;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.15s;
-            position: relative;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .prime-btn:hover { background: var(--button-hover); transform: scale(1.05); }
-        .prime-btn:active { background: var(--button-active); transform: scale(0.95); }
-
-        /* ── Minimalist In-Game Notifications ── */
-        .bonus-container {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            pointer-events: none;
-            z-index: 200;
-            align-items: flex-start;
-        }
-
-        .bonus-notify {
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            font-size: 1rem;
-            color: var(--accent);
-            opacity: 0;
-            transform: translateX(-120%);
-            transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            pointer-events: none;
-            background: rgba(10, 10, 10, 0.85);
-            padding: 4px 8px;
-            border-left: 3px solid var(--accent);
-        }
-
-        @media (prefers-color-scheme: light) {
-            .bonus-notify {
-                background: rgba(245, 245, 245, 0.85);
-            }
-        }
-
-        .bonus-notify.show {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        /* ── Sliding Zen Config Sidebar ── */
-        .sidebar-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            z-index: 499;
-            opacity: 0;
-            visibility: hidden; /* Fixes shades of black and clicks blocking when hidden */
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .sidebar-overlay.open {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .sidebar {
-            position: fixed;
-            top: 0;
-            right: -320px;
-            width: 320px;
-            height: 100%;
-            background: var(--card-bg);
-            border-left: 3px solid var(--accent);
-            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
-            transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s;
-            z-index: 500;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            visibility: hidden; /* Avoids layers rendering when off-screen */
-        }
-
-        .sidebar.open {
-            right: 0;
-            visibility: visible;
-        }
-
-        /* ── Game Over ── */
-        .game-over-screen { text-align: center; }
-
-        .game-over-title {
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-            color: var(--danger);
-        }
-
-        .final-stats { font-size: 1.5rem; margin-bottom: 2rem; }
-        .final-stats div { margin: 0.8rem 0; }
-
-        .bonus-tally-container {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.2rem;
-            margin-bottom: 2rem;
-            border: 1px dashed var(--accent);
-            text-align: left;
-        }
-
-        .bonus-tally-title {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--fg-dim);
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .bonus-tally-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            font-size: 1rem;
-        }
-        .bonus-tally-row:last-child { margin-bottom: 0; }
-
-        .bonus-tally-val {
-            color: var(--accent);
-            font-weight: bold;
-        }
-
-        /* ── Animations ── */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-        .shake { animation: shake 0.3s; }
-
-        @keyframes flash {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        .flash { animation: flash 0.2s; }
-
-        @keyframes defeat {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.8; }
-            100% { transform: scale(0); opacity: 0; }
-        }
-        .defeat { animation: defeat 0.4s; }
-
-        .flying-number {
-            position: fixed;
-            font-size: 2rem;
-            font-weight: bold;
-            pointer-events: none;
-            z-index: 101;
-            color: var(--accent);
-        }
-
-        .flying-bonus {
-            position: fixed;
-            font-size: 2.2rem;
-            font-weight: bold;
-            pointer-events: none;
-            z-index: 102;
-            color: #ffcc00;
-            text-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
-            transition: transform 0.5s ease-in;
-        }
-
-        @media (max-width: 600px) {
-            .title { font-size: 2rem; }
-            .number-display { font-size: 2rem; min-height: 80px; }
-            .prime-btn { font-size: 1rem; }
-            .btn { padding: 0.8rem 2rem; font-size: 1.2rem; }
-        }
-    </style>
-</head>
-<body>
-    <!-- Custom Modal Dialog (Safe replacement for native confirm) -->
-    <div class="modal-overlay" id="confirmModal">
-        <div class="modal-card">
-            <h3>Reset Zen Progress?</h3>
-            <p>This action is permanent and cannot be undone. All of your saved Zen lifetime scores and ranks will be completely wiped.</p>
-            <div class="modal-buttons">
-                <button class="modal-btn btn-secondary" onclick="game.closeConfirmation()">Cancel</button>
-                <button class="modal-btn btn-danger" onclick="game.executeZenDelete()">Delete Data</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Zen Sliding Config Sidebar -->
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="game.closeZenSidebar()"></div>
-    <div class="sidebar" id="zenSidebar">
-        <h3 style="color: var(--accent); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; border-bottom: 2px solid var(--accent); padding-bottom: 8px;">Settings</h3>
-        
-        <!-- Segmented 3-Button Prime Pool Select -->
-        <div style="text-align: left;">
-            <span class="setting-label" style="display: block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-dim); margin-bottom: 8px;">Prime Pool</span>
-            <div style="display: flex; gap: 6px;">
-                <button id="poolBtn1" class="btn-exit-practice" style="flex: 1; padding: 10px 4px; font-size: 0.75rem;" onclick="game.setZenPool(1)">Lvl 1<br>(2-7)</button>
-                <button id="poolBtn2" class="btn-exit-practice" style="flex: 1; padding: 10px 4px; font-size: 0.75rem;" onclick="game.setZenPool(2)">Lvl 2<br>(2-13)</button>
-                <button id="poolBtn3" class="btn-exit-practice" style="flex: 1; padding: 10px 4px; font-size: 0.75rem;" onclick="game.setZenPool(3)">Lvl 3<br>(2-23)</button>
-            </div>
-        </div>
-
-        <!-- Tier Slider expanded to 20 -->
-        <div style="text-align: left;">
-            <span class="setting-label" style="display: block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-dim); margin-bottom: 8px;">Spawn Tier</span>
-            <div class="slider-row" style="margin-bottom: 8px;">
-                <input type="range" id="sidebarTierSlider" min="1" max="20" step="1" value="1" oninput="game.setZenTier(this.value)" style="width: 100%;">
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
-                <span>Tier: <span id="sidebarTierVal" style="color: var(--accent); font-weight: bold;">1</span></span>
-                <span>Cap: <span id="sidebarCapVal" style="color: var(--accent); font-weight: bold;">100</span></span>
-            </div>
-        </div>
-
-        <div style="margin-top: auto;">
-            <button class="btn btn-secondary" style="min-width: unset; width: 100%; font-size: 1rem; padding: 10px;" onclick="game.closeZenSidebar()">RESUME</button>
-        </div>
-    </div>
-
-    <div class="container">
-        <!-- Menu -->
-        <div class="screen active" id="menuScreen">
-            <div class="menu-screen">
-                <div class="title">Prime 𝑹𝑼𝑺𝑯</div>
+                <div class="title">Prime 𝑹𝑼𝑺𝑯<span style="font-size: 0.5em; vertical-align: -0.2em;">v0.4</span></div>
                 <div class="menu-subtitle">
                     High Score: <span id="menuHighScore">0</span> <span id="menuHighScoreRank" style="color: var(--accent); font-weight: bold;">(F)</span><br>
-                    Zen Score: <span id="menuZenHighScore" style="color: var(--accent);">0</span> <span id="menuZenHighScoreRank" style="color: var(--accent); font-weight: bold;">(F)</span>
+                    <span id="menuModHighScoreRow" style="display: none;">Modifiers High Score: <span id="menuModHighScore" style="color: var(--accent);">0</span> <span id="menuModHighScoreRank" style="color: var(--accent); font-weight: bold;">(F)</span><br></span>
+                    <span id="menuZenHighScoreRow" style="display: none;">Zen High Score: <span id="menuZenHighScore" style="color: var(--accent);">0</span> <span id="menuZenHighScoreRank" style="color: var(--accent); font-weight: bold;">(F)</span><br></span>
+                    
+                    <!-- Coin Indicator with custom gold coin SVG -->
+                    <span style="color: #ffd700; font-weight: bold; margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; font-size: 1.2rem;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2" style="width: 1.4rem; height: 1.4rem;"><circle cx="12" cy="12" r="10" fill="rgba(255, 215, 0, 0.15)" stroke="#ffd700" stroke-width="2"/><circle cx="12" cy="12" r="6" stroke="#ffd700" stroke-width="1.5"/><path d="M12 9v6M10 11h4" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        <span class="coin-count-text">0</span>
+                    </span>
                 </div>
                 <div class="menu-buttons">
                     <button class="btn" onclick="game.startGame('classic')">START</button>
-                    <button class="btn btn-secondary" onclick="game.startGame('zen')">Zen</button>
-                    <button class="btn btn-secondary" onclick="game.showScreen('settingsScreen'); game.refreshSettings()">SETTINGS</button>
+                    <button class="btn btn-secondary" id="menuZenBtn" style="display: none;">Zen Practice</button>
+                    <button class="btn btn-secondary" id="menuSettingsBtn" style="display: none;">Settings</button>
                 </div>
+                <!-- Progression Shop Button Bottom Left -->
+                <button class="btn-exit-practice" id="shopOpenBtn" style="position: absolute; bottom: -5px; left: 10px; border-color: #ffd700; color: #ffd700; font-size: 0.9rem; padding: 6px 14px; background: rgba(0,0,0,0.5); display: none;" onclick="game.showScreen('shopScreen'); game.refreshShop();">Shop</button>
             </div>
         </div>
 
-        <!-- Settings / Stats -->
-        <div class="screen" id="settingsScreen">
+        <!-- Upgrades Shop Screen -->
+        <div class="screen" id="shopScreen">
             <div class="settings-screen">
-                <div class="settings-title">SETTINGS</div>
-
-                <div class="settings-section">
-                    <h3>General Settings</h3>
-                    <div class="setting-row">
-                        <span class="setting-label">Tile Size</span>
-                        <div class="slider-row">
-                            <input type="range" id="tileSizeSlider" min="60" max="150" step="5" value="120" oninput="game.onTileSizeChange(this.value)">
-                            <span class="setting-value" id="tileSizeValue">80</span>
-                        </div>
-                    </div>
+                <div class="settings-title" style="color: #ffd700;">UPGRADES SHOP</div>
+                <div style="font-size: 1.3rem; margin-bottom: 1.5rem; font-weight: bold; color: #ffd700; display: inline-flex; align-items: center; gap: 6px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2" style="width: 1.5rem; height: 1.5rem;"><circle cx="12" cy="12" r="10" fill="rgba(255, 215, 0, 0.15)" stroke="#ffd700" stroke-width="2"/><circle cx="12" cy="12" r="6" stroke="#ffd700" stroke-width="1.5"/><path d="M12 9v6M10 11h4" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    <span class="coin-count-text">0</span>
                 </div>
-
-                <div class="settings-section">
-                    <h3>Stats</h3>
-                    <div class="stat-row">
-                        <span class="stat-label">Highest Score</span>
-                        <span class="stat-value" id="statHighScore">0</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">Highest Rank</span>
-                        <span class="stat-value" id="statHighestRank">F</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">Zen Score</span>
-                        <span class="stat-value" id="statZenHighScore">0</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">Zen Highest Rank</span>
-                        <span class="stat-value" id="statZenHighestRank">F</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">Total Defeated</span>
-                        <span class="stat-value" id="statTotalDefeated">0</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">Sum of Defeated</span>
-                        <span class="stat-value" id="statSumDefeated">0</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">Highest Number</span>
-                        <span class="stat-value" id="statHighestNumber">0</span>
-                    </div>
-                </div>
-
-                <div class="settings-section" style="border: 1px dashed var(--danger);">
-                    <h3>Danger Zone</h3>
-                    <div class="setting-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
-                        <span class="stat-label" style="text-align: center; font-size: 0.85rem;">Reset persistent practice metrics</span>
-                        <button class="btn btn-danger" style="min-width: unset; width: 100%; font-size: 1rem; padding: 0.6rem 1rem;" onclick="game.showConfirmation()">Delete Zen Data</button>
+                
+                <div class="settings-scrollable-content" style="max-height: 52vh; margin-bottom: 1rem;">
+                    <div id="shopUpgradesContainer" style="display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Shop items built dynamically in JS -->
                     </div>
                 </div>
 
                 <button class="btn btn-secondary back-btn" onclick="game.showScreen('menuScreen')">BACK</button>
+            </div>
+        </div>
+
+        <!-- Settings / Stats (Now featuring segmented sub-tabs) -->
+        <div class="screen" id="settingsScreen">
+            <div class="settings-screen">
+                <div class="settings-title">Settings</div>
+
+                <!-- Tabs navigation header -->
+                <div class="settings-tab-bar">
+                    <button id="setTabGeneral" class="btn-exit-practice active" onclick="game.switchSettingsTab('general')">General</button>
+                    <button id="setTabModifiers" class="btn-exit-practice" style="display: none;" onclick="game.switchSettingsTab('modifiers')">Modifiers</button>
+                </div>
+
+                <!-- Tab A: General Configuration -->
+                <div id="settingsPanelGeneral">
+                    <div class="settings-scrollable-content">
+                        <div class="settings-section">
+                            <h3>General Settings</h3>
+                            <div class="setting-row">
+                                <span class="setting-label">Tile Size</span>
+                                <div class="slider-row">
+                                    <input type="range" id="tileSizeSlider" min="60" max="150" step="5" value="120" oninput="game.onTileSizeChange(this.value)">
+                                    <span class="setting-value" id="tileSizeValue">80</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-section">
+                            <h3>Persistent stats</h3>
+                            <div class="stat-row">
+                                <span class="stat-label">Highest Score</span>
+                                <span class="stat-value" id="statHighScore">0</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Highest Rank</span>
+                                <span class="stat-value" id="statHighestRank">F</span>
+                            </div>
+                            <div class="stat-row" id="statModHighScoreRow" style="display: none;">
+                                <span class="stat-label">Modded High Score</span>
+                                <span class="stat-value" id="statModHighScore">0</span>
+                            </div>
+                            <div class="stat-row" id="statModHighestRankRow" style="display: none;">
+                                <span class="stat-label">Modded Highest Rank</span>
+                                <span class="stat-value" id="statModHighestRank">F</span>
+                            </div>
+                            <div class="stat-row" id="statZenHighScoreRow" style="display: none;">
+                                <span class="stat-label">Zen Lifetime Score</span>
+                                <span class="stat-value" id="statZenHighScore">0</span>
+                            </div>
+                            <div class="stat-row" id="statZenHighestRankRow" style="display: none;">
+                                <span class="stat-label">Zen Highest Rank</span>
+                                <span class="stat-value" id="statZenHighestRank">F</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Total Defeated</span>
+                                <span class="stat-value" id="statTotalDefeated">0</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Sum of Defeated</span>
+                                <span class="stat-value" id="statSumDefeated">0</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Highest Number</span>
+                                <span class="stat-value" id="statHighestNumber">0</span>
+                            </div>
+                        </div>
+
+                        <div class="settings-section" style="border: 1px dashed var(--danger);">
+                            <h3>Danger Zone</h3>
+                            <div class="setting-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                                <span class="stat-label" style="text-align: center; font-size: 0.85rem;">Reset persistent practice metrics</span>
+                                <button class="btn btn-danger" style="min-width: unset; width: 100%; font-size: 1rem; padding: 0.6rem 1rem;" onclick="game.showConfirmation()">Delete Zen Data</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab B: Gameplay Difficulty Mutators -->
+                <div id="settingsPanelModifiers" style="display: none;">
+                    <div class="settings-scrollable-content">
+                        <div class="settings-section">
+                            <h3>Timer modifiers</h3>
+                            <p style="font-size: 0.75rem; color: var(--fg-dim); margin-bottom: 1rem; line-height: 1.4;">Turbo and Think modifiers are conflicting. Encouragement modifier can run alongside either.</p>
+                            
+                            <!-- Turbo Modifier Row -->
+                            <div class="modifier-adjust-row">
+                                <div class="modifier-info">
+                                    <span class="modifier-name">Turbo Mod</span>
+                                    <span class="modifier-desc">Timer: / (1 + 0.25 * level)<br>Effect: +7% score per level</span>
+                                </div>
+                                <div class="modifier-controls">
+                                    <button class="modifier-btn-action" onclick="game.adjustMod('turbo', -1)">-</button>
+                                    <span class="modifier-level-display" id="modTurboLvl">Lvl 0</span>
+                                    <button class="modifier-btn-action" onclick="game.adjustMod('turbo', 1)">+</button>
+                                </div>
+                            </div>
+
+                            <!-- Think Modifier Row -->
+                            <div class="modifier-adjust-row">
+                                <div class="modifier-info">
+                                    <span class="modifier-name">Think Mod</span>
+                                    <span class="modifier-desc">Timer: * (1 + 0.18 * level)<br>Effect: -15% score per level</span>
+                                </div>
+                                <div class="modifier-controls">
+                                    <button class="modifier-btn-action" onclick="game.adjustMod('think', -1)">-</button>
+                                    <span class="modifier-level-display" id="modThinkLvl">Lvl 0</span>
+                                    <button class="modifier-btn-action" onclick="game.adjustMod('think', 1)">+</button>
+                                </div>
+                            </div>
+
+                            <!-- Encouragement Modifier Row -->
+                            <div class="modifier-adjust-row">
+                                <div class="modifier-info">
+                                    <span class="modifier-name">Encouragement Mod</span>
+                                    <span class="modifier-desc">Timer: + (0.1 * level) seconds on correct division<br>Effect: -7% score per level</span>
+                                </div>
+                                <div class="modifier-controls">
+                                    <button class="modifier-btn-action" onclick="game.adjustMod('encouragement', -1)">-</button>
+                                    <span class="modifier-level-display" id="modEncouragementLvl">Lvl 0</span>
+                                    <button class="modifier-btn-action" onclick="game.adjustMod('encouragement', 1)">+</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-section">
+                            <h3>Score modifiers</h3>
+                            <!-- Score Drain Modifier Row -->
+                            <div class="modifier-adjust-row">
+                                <div class="modifier-info">
+                                    <span class="modifier-name">Drain Mod</span>
+                                    <span class="modifier-desc">Score drains after 1.5s of inactivity.<br>Drain: - (4 + 4 * level) pt/s<br>Effect: +6% score per level</span>
+                                </div>
+                                <div class="modifier-controls">
+                                    <button class="modifier-btn-action" onclick="game.adjustMod('drain', -1)">-</button>
+                                    <span class="modifier-level-display" id="modDrainLvl">Lvl 0</span>
+                                    <button class="modifier-btn-action" onclick="game.adjustMod('drain', 1)">+</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-section">
+                            <h3>Live modifiers</h3>
+                            <p style="font-size: 0.75rem; color: var(--fg-dim); margin-bottom: 1rem; line-height: 1.4;">Only choose at most one of the life modifiers below.</p>
+
+                            <!-- Fragile Modifier Row -->
+                            <div class="modifier-adjust-row">
+                                <div class="modifier-info">
+                                    <span class="modifier-name">Fragile Mod</span>
+                                    <span class="modifier-desc">Start run with fewer starting lives.<br>Effect: Lvl 1 (+7%), Lvl 2 (+12%), Lvl 3 (+19%), Lvl 4 (+30%)</span>
+                                </div>
+                                <div class="modifier-controls">
+                                    <button class="modifier-btn-action" onclick="game.adjustMod('fragile', -1)">-</button>
+                                    <span class="modifier-level-display" id="modFragileLvl">Lvl 0</span>
+                                    <button class="modifier-btn-action" onclick="game.adjustMod('fragile', 1)">+</button>
+                                </div>
+                            </div>
+
+                            <!-- Friendly Modifier Row -->
+                            <div class="modifier-adjust-row">
+                                <div class="modifier-info">
+                                    <span class="modifier-name">Friendly Mod</span>
+                                    <span class="modifier-desc">Start run with extra starting lives.<br>Effect: Lvl 1 (-12%), Lvl 2 (-24%), Lvl 3 (-38%), Lvl 4 (-52%), Lvl 5 (-68%)</span>
+                                </div>
+                                <div class="modifier-controls">
+                                    <button class="modifier-btn-action" onclick="game.adjustMod('friendly', -1)">-</button>
+                                    <span class="modifier-level-display" id="modFriendlyLvl">Lvl 0</span>
+                                    <button class="modifier-btn-action" onclick="game.adjustMod('friendly', 1)">+</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-section">
+                            <h3>Other modifiers</h3>
+                            <p style="font-size: 0.75rem; color: var(--fg-dim); margin-bottom: 1rem; line-height: 1.4;">Chaos Grid and Muscle Memory are mutually exclusive modifiers.</p>
+
+                            <!-- Chaos Grid Modifier Row -->
+                            <div class="modifier-adjust-row">
+                                <div class="modifier-info">
+                                    <span class="modifier-name">Chaos Grid</span>
+                                    <span class="modifier-desc">Prime layouts shuffled at start and phase transitions.<br>Effect: +25% score</span>
+                                </div>
+                                <div class="modifier-controls">
+                                    <button class="btn-exit-practice" id="modChaosToggle" onclick="game.adjustMod('chaos', 0)" style="min-width: 80px;">OFF</button>
+                                </div>
+                            </div>
+
+                            <!-- Muscle Memory Modifier Row -->
+                            <div class="modifier-adjust-row">
+                                <div class="modifier-info">
+                                    <span class="modifier-name">Muscle Memory</span>
+                                    <span class="modifier-desc">Lvl 1: Hide primes after 1st division<br>Lvl 2: Hide primes 0.5s after spawn<br>Lvl 3: Keep primes completely hidden<br>Effect: Lvl 1 (+10%), Lvl 2 (+17%), Lvl 3 (+25%)</span>
+                                </div>
+                                <div class="modifier-controls">
+                                    <button class="modifier-btn-action" onclick="game.adjustMod('muscleMemory', -1)">-</button>
+                                    <span class="modifier-level-display" id="modMuscleMemoryLvl">Lvl 0</span>
+                                    <button class="modifier-btn-action" onclick="game.adjustMod('muscleMemory', 1)">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cumulative Active Multiplier Display -->
+                    <div class="settings-section" style="border: 2px dashed var(--accent); margin-top: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-family: inherit;">
+                            <span style="font-weight: bold; font-size: 0.95rem;">TOTAL SCORE MULTIPLIER:</span>
+                            <span id="modsTotalMultiplier" style="color: var(--accent); font-weight: bold; font-size: 1.25rem;">1.00x</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary back-btn" onclick="game.showScreen('menuScreen')">BACK</button>
+            </div>
+        </div>
+
+        <!-- Victory Screen -->
+        <div class="screen" id="victoryScreen">
+            <div class="settings-screen" style="text-align: center; max-width: 500px; margin: 0 auto; padding-top: 40px;">
+                <h2 class="title" style="color: #ffd700; font-size: 2.8rem; text-shadow: 0 0 15px rgba(255,215,0,0.3);">VICTORY</h2>
+                <div class="menu-subtitle" style="line-height: 1.8; margin-bottom: 2.5rem; text-align: justify; font-size: 0.95rem;">
+                    Congratulations!<br><br>
+                    You have won this game. 50 Million coins spent, compiling the Prime extraction game into your eternal memory (possibly :D). Prime numbers across the grid celebrate your completion of the game.<br><br>
+                    Your record and achievements are fully apprecitated. (Also, use your high score for bragging rights!)
+                </div>
+                <button class="btn" style="background: #ffd700; color: #000; font-weight: bold;" onclick="game.showScreen('menuScreen')">CONTINUE PLAYING</button>
             </div>
         </div>
 
@@ -1305,8 +1057,20 @@
 
             <div class="game-screen">
                 <div class="game-header">
-                    <div class="lives" id="livesContainer"></div>
-                    <div class="stats">
+                    <!-- Left aligned HUD items: Gold first (top-left) then Lives -->
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <!-- Gold indicator HUD -->
+                        <span class="gold-indicator" style="color: #ffd700; font-weight: bold; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 6px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2" style="width: 1.3rem; height: 1.3rem;"><circle cx="12" cy="12" r="10" fill="rgba(255, 215, 0, 0.15)" stroke="#ffd700" stroke-width="2"/><circle cx="12" cy="12" r="6" stroke="#ffd700" stroke-width="1.5"/><path d="M12 9v6M10 11h4" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"/></svg>
+                            <span class="coin-count-text">0</span>
+                        </span>
+                        
+                        <!-- Lives Tracker -->
+                        <div class="lives" id="livesContainer"></div>
+                    </div>
+
+                    <!-- Right aligned HUD items: Score & Rank -->
+                    <div class="stats" style="margin-left: auto;">
                         <div class="score-box">
                             <div class="score" id="scoreDisplay">0</div>
                             <div class="defeated">Defeated: <span id="defeatedDisplay">0</span></div>
@@ -1339,26 +1103,40 @@
                     <div>Numbers Defeated: <span id="finalDefeated">0</span></div>
                 </div>
 
+                <!-- Challenger Mod Score list (only displayed if run is classic modded) -->
+                <div class="bonus-tally-container" id="gameOverModsContainer" style="display: none; border-color: var(--danger);">
+                    <div class="bonus-tally-title" style="color: var(--danger);">Modifier Boosts</div>
+                    <div id="gameOverModsList"></div>
+                    <div class="bonus-tally-row" style="margin-top: 10px; border-top: 1px dashed var(--fg-dim); padding-top: 8px; font-weight: bold;">
+                        <span>Total Score Multiplier:</span>
+                        <span id="gameOverModMultiplier" style="color: var(--accent);">1.00x</span>
+                    </div>
+                </div>
+
                 <!-- Extra Bonuses Earned Summary -->
                 <div class="bonus-tally-container" id="bonusTallyContainer">
                     <div class="bonus-tally-title">Extra Performance Bonuses</div>
                     <div class="bonus-tally-row">
-                        <span>⚡ Quick Bonus:</span>
+                        <span>Quick Bonus:</span>
                         <span class="bonus-tally-val" id="tallyQuickBonus">+0</span>
                     </div>
                     <div class="bonus-tally-row">
-                        <span>🎯 Precise Bonus:</span>
+                        <span>Precise Bonus:</span>
                         <span class="bonus-tally-val" id="tallyPreciseBonus">+0</span>
                     </div>
                 </div>
 
-                <button class="btn" onclick="game.returnToMenu()">MENU</button>
+                <button class="btn" onclick="game.returnToMenu()">Continue</button>
             </div>
         </div>
     </div>
 
+    <!-- Elegant modifier status tag sitting precisely at the absolute top-right of the viewport -->
+    <div id="moddedIndicator" style="position: fixed; top: 15px; right: 15px; font-size: 0.85rem; font-weight: bold; color: var(--accent); opacity: 0.85; z-index: 1000; display: none; font-family: 'Courier New', monospace;">
+        Modded (1.00x)
+    </div>
+
     <script>
-        /* ── Storage helper (graceful fallback) ── */
         var _ls = (function () { try { return window['local' + 'Storage']; } catch (_) { return null; } })();
         const storage = {
             _mem: {},
@@ -1382,10 +1160,10 @@
             }
         };
 
-        const SAVE_KEY = 'primeDivide_save';
+        const SAVE_KEY = 'primeDivide_save_v2';
 
         const game = {
-            lives: 3,
+            lives: 5,
             score: 0,
             displayedScore: 0,
             displayedBaseScore: 0,     // Eased in-game score tracker for factor divisions
@@ -1394,6 +1172,7 @@
             phase: 1,
             difficulty: 1,
             primes: [],
+            shuffledPrimes: [],        // Keeps active layout elements
             maxTime: 0,
             timeRemaining: 0,
             lastTime: 0,
@@ -1410,18 +1189,53 @@
             quickBonusPoints: 0,       // Tally of Quick Bonus
             preciseBonusPoints: 0,     // Tally of Precise Bonus
             _currentNumberFactorsCount: 0, // Total expected prime factors of the current active generated number
+            lastCorrectFactorTime: 0,   // Timestamp of the last correct prime calculation for Score Drain checking
+            layoutsHidden: false,       // Tracks if prime layouts must be masked out for Muscle Memory
+            isFirstFactorOfEnemy: true, // Helper state to resolve Muscle Memory level 1 hidden layouts
+
+            // Challenge Mutators states
+            mods: {
+                turbo: 0,              // lvl 0 to 8
+                think: 0,              // lvl 0 to 5
+                encouragement: 0,      // lvl 0 to 5
+                drain: 0,              // lvl 0 to 5
+                fragile: 0,            // lvl 0 to 4
+                friendly: 0,           // lvl 0 to 5
+                chaos: false,          // boolean
+                muscleMemory: 0        // lvl 0 to 3
+            },
 
             // Persistent data
             tileSize: 80,
             highScore: 0,
+            modHighScore: 0,           // Modded high score tracking
             zenHighScore: 0,
             totalDefeated: 0,
             sumDefeated: 0,
             highestNumber: 0,
 
-            // Zen session properties (Non-persistent in-memory)
-            zenSpawnLevel: 1,
-            zenSpawnTier: 1,
+            // Progression Economy additions
+            coins: 0,
+            bestDefeatedNoMods: 0,
+            hasPlayed: false,          // Flag tracking if first complete game has concluded
+            upgrades: {
+                upg1: 0,      // level of +10% coin gain per level additive
+                upg2: false,  // Zen unlocked
+                upg3: false,  // Settings & Stats unlocked
+                upg4: false,  // Coins based on highScore unmodded
+                upg5: false,  // Modifiers unlocked
+                upg6: false,  // Extra bonuses unlocked
+                upg7: false,  // Coins based on totalDefeated
+                upg8: false,  // Coins based on bestDefeatedNoMods
+                upg9: false,  // Triple coins
+                upg10: false, // Self coin-boost based on coins
+                upg11: false, // 5x coins
+                upg12: false  // Victory protocols
+            },
+
+            // Zen config settings (In-memory only inside sidebar controls)
+            zenSpawnLevel: 1,          // 1: Level 1, 2: Level 2, 3: Level 3
+            zenSpawnTier: 1,           // 1 to 20
 
             init() {
                 this.loadSave();
@@ -1433,20 +1247,46 @@
                 const data = storage.get(SAVE_KEY, {});
                 this.tileSize = data.tileSize || 80;
                 this.highScore = data.highScore || 0;
+                this.modHighScore = data.modHighScore || 0;
                 this.zenHighScore = data.zenHighScore || 0;
                 this.totalDefeated = data.totalDefeated || 0;
                 this.sumDefeated = data.sumDefeated || 0;
                 this.highestNumber = data.highestNumber || 0;
+                this.hasPlayed = data.hasPlayed || false;
+
+                // Coin economy loads
+                this.coins = data.coins || 0;
+                this.bestDefeatedNoMods = data.bestDefeatedNoMods || 0;
+                if (data.upgrades) {
+                    this.upgrades = { ...this.upgrades, ...data.upgrades };
+                }
+                
+                // Initialize default mods inside session
+                this.mods = {
+                    turbo: 0,
+                    think: 0,
+                    encouragement: 0,
+                    drain: 0,
+                    fragile: 0,
+                    friendly: 0,
+                    chaos: false,
+                    muscleMemory: 0
+                };
             },
 
             persist() {
                 storage.set(SAVE_KEY, {
                     tileSize: this.tileSize,
                     highScore: this.highScore,
+                    modHighScore: this.modHighScore,
                     zenHighScore: this.zenHighScore,
                     totalDefeated: this.totalDefeated,
                     sumDefeated: this.sumDefeated,
-                    highestNumber: this.highestNumber
+                    highestNumber: this.highestNumber,
+                    coins: this.coins,
+                    bestDefeatedNoMods: this.bestDefeatedNoMods,
+                    hasPlayed: this.hasPlayed,
+                    upgrades: this.upgrades
                 });
             },
 
@@ -1462,23 +1302,207 @@
                 this.persist();
             },
 
+            switchSettingsTab(tabName) {
+                const tabGeneral = document.getElementById('setTabGeneral');
+                const tabModifiers = document.getElementById('setTabModifiers');
+                const panelGeneral = document.getElementById('settingsPanelGeneral');
+                const panelModifiers = document.getElementById('settingsPanelModifiers');
+
+                if (tabName === 'general') {
+                    tabGeneral.classList.add('active');
+                    tabModifiers.classList.remove('active');
+                    panelGeneral.style.display = 'block';
+                    panelModifiers.style.display = 'none';
+                } else {
+                    tabModifiers.classList.add('active');
+                    tabGeneral.classList.remove('active');
+                    panelGeneral.style.display = 'none';
+                    panelModifiers.style.display = 'block';
+                }
+            },
+
+            adjustMod(mod, delta) {
+                if (mod === 'turbo') {
+                    this.mods.turbo = Math.max(0, Math.min(8, this.mods.turbo + delta));
+                    if (this.mods.turbo > 0) this.mods.think = 0;
+                } else if (mod === 'think') {
+                    this.mods.think = Math.max(0, Math.min(5, this.mods.think + delta));
+                    if (this.mods.think > 0) this.mods.turbo = 0;
+                } else if (mod === 'encouragement') {
+                    this.mods.encouragement = Math.max(0, Math.min(5, this.mods.encouragement + delta));
+                } else if (mod === 'drain') {
+                    this.mods.drain = Math.max(0, Math.min(5, this.mods.drain + delta));
+                } else if (mod === 'fragile') {
+                    this.mods.fragile = Math.max(0, Math.min(4, this.mods.fragile + delta));
+                    if (this.mods.fragile > 0) this.mods.friendly = 0;
+                } else if (mod === 'friendly') {
+                    this.mods.friendly = Math.max(0, Math.min(5, this.mods.friendly + delta));
+                    if (this.mods.friendly > 0) this.mods.fragile = 0;
+                } else if (mod === 'chaos') {
+                    this.mods.chaos = !this.mods.chaos;
+                    if (this.mods.chaos) this.mods.muscleMemory = 0;
+                } else if (mod === 'muscleMemory') {
+                    this.mods.muscleMemory = Math.max(0, Math.min(3, this.mods.muscleMemory + delta));
+                    if (this.mods.muscleMemory > 0) this.mods.chaos = false;
+                }
+                
+                this.refreshModifierDisplays();
+            },
+
+            refreshModifierDisplays() {
+                document.getElementById('modTurboLvl').textContent = "Lvl " + this.mods.turbo;
+                document.getElementById('modThinkLvl').textContent = "Lvl " + this.mods.think;
+                document.getElementById('modEncouragementLvl').textContent = "Lvl " + this.mods.encouragement;
+                document.getElementById('modDrainLvl').textContent = "Lvl " + this.mods.drain;
+                document.getElementById('modFragileLvl').textContent = "Lvl " + this.mods.fragile;
+                document.getElementById('modFriendlyLvl').textContent = "Lvl " + this.mods.friendly;
+                document.getElementById('modMuscleMemoryLvl').textContent = "Lvl " + this.mods.muscleMemory;
+                
+                const chaosBtn = document.getElementById('modChaosToggle');
+                if (this.mods.chaos) {
+                    chaosBtn.textContent = "ON";
+                    chaosBtn.classList.add('active');
+                } else {
+                    chaosBtn.textContent = "OFF";
+                    chaosBtn.classList.remove('active');
+                }
+                
+                document.getElementById('modsTotalMultiplier').textContent = this.getModMultiplier().toFixed(2) + "x";
+            },
+
+            getModMultiplier() {
+                let mult = 1.00;
+                mult += this.mods.turbo * 0.07;
+                mult -= this.mods.think * 0.15;
+                mult -= this.mods.encouragement * 0.07;
+                mult += this.mods.drain * 0.06;
+                
+                if (this.mods.fragile > 0) {
+                    const fragileRates = [0, 0.07, 0.12, 0.19, 0.30];
+                    mult += fragileRates[this.mods.fragile] || 0;
+                }
+                if (this.mods.friendly > 0) {
+                    const friendlyRates = [0, -12, -24, -38, -52, -68];
+                    mult += friendlyRates[this.mods.friendly] || 0;
+                }
+                
+                if (this.mods.chaos) mult += 0.25;
+                
+                if (this.mods.muscleMemory > 0) {
+                    const memoryRates = [0, 0.10, 0.17, 0.25];
+                    mult += memoryRates[this.mods.muscleMemory] || 0;
+                }
+                
+                return Math.max(0.01, mult);
+            },
+
+            hasModsActive() {
+                return (
+                    this.mods.turbo > 0 || 
+                    this.mods.think > 0 || 
+                    this.mods.encouragement > 0 || 
+                    this.mods.drain > 0 || 
+                    this.mods.fragile > 0 || 
+                    this.mods.friendly > 0 || 
+                    this.mods.chaos || 
+                    this.mods.muscleMemory > 0
+                );
+            },
+
             refreshSettings() {
                 document.getElementById('tileSizeSlider').value = this.tileSize;
                 document.getElementById('tileSizeValue').textContent = this.tileSize;
                 document.getElementById('statHighScore').textContent = this.highScore;
                 document.getElementById('statHighestRank').textContent = this.getRankInfo(this.highScore, 'classic').name;
-                document.getElementById('statZenHighScore').textContent = this.zenHighScore;
-                document.getElementById('statZenHighestRank').textContent = this.getRankInfo(this.zenHighScore, 'zen').name;
                 document.getElementById('statTotalDefeated').textContent = this.totalDefeated;
                 document.getElementById('statSumDefeated').textContent = this.sumDefeated;
                 document.getElementById('statHighestNumber').textContent = this.highestNumber;
+
+                // Mod High Score Displays
+                if (this.upgrades.upg5) {
+                    document.getElementById('statModHighScoreRow').style.display = 'flex';
+                    document.getElementById('statModHighestRankRow').style.display = 'flex';
+                    document.getElementById('statModHighScore').textContent = this.modHighScore;
+                    document.getElementById('statModHighestRank').textContent = this.getRankInfo(this.modHighScore, 'classic').name;
+                } else {
+                    document.getElementById('statModHighScoreRow').style.display = 'none';
+                    document.getElementById('statModHighestRankRow').style.display = 'none';
+                }
+
+                // Zen High Score Displays
+                if (this.upgrades.upg2) {
+                    document.getElementById('statZenHighScoreRow').style.display = 'flex';
+                    document.getElementById('statZenHighestRankRow').style.display = 'flex';
+                    document.getElementById('statZenHighScore').textContent = this.zenHighScore;
+                    document.getElementById('statZenHighestRank').textContent = this.getRankInfo(this.zenHighScore, 'zen').name;
+                } else {
+                    document.getElementById('statZenHighScoreRow').style.display = 'none';
+                    document.getElementById('statZenHighestRankRow').style.display = 'none';
+                }
+
+                this.refreshModifierDisplays();
+                this.updateCoinDisplays(this.coins);
+
+                // Lock check on modifiers page
+                const modTab = document.getElementById('setTabModifiers');
+                if (this.upgrades.upg5) {
+                    modTab.style.display = 'block';
+                } else {
+                    modTab.style.display = 'none';
+                    this.switchSettingsTab('general'); // Enforce general safety
+                }
             },
 
             updateMenuStats() {
                 document.getElementById('menuHighScore').textContent = this.highScore;
                 document.getElementById('menuHighScoreRank').textContent = "(" + this.getRankInfo(this.highScore, 'classic').name + ")";
-                document.getElementById('menuZenHighScore').textContent = this.zenHighScore;
-                document.getElementById('menuZenHighScoreRank').textContent = "(" + this.getRankInfo(this.zenHighScore, 'zen').name + ")";
+                
+                // Display mod scores row only if unlocked
+                if (this.upgrades.upg5) {
+                    document.getElementById('menuModHighScoreRow').style.display = 'block';
+                    document.getElementById('menuModHighScore').textContent = this.modHighScore;
+                    document.getElementById('menuModHighScoreRank').textContent = "(" + this.getRankInfo(this.modHighScore, 'classic').name + ")";
+                } else {
+                    document.getElementById('menuModHighScoreRow').style.display = 'none';
+                }
+
+                // Display Zen Practice row only if unlocked
+                if (this.upgrades.upg2) {
+                    document.getElementById('menuZenHighScoreRow').style.display = 'block';
+                    document.getElementById('menuZenHighScore').textContent = this.zenHighScore;
+                    document.getElementById('menuZenHighScoreRank').textContent = "(" + this.getRankInfo(this.zenHighScore, 'zen').name + ")";
+                } else {
+                    document.getElementById('menuZenHighScoreRow').style.display = 'none';
+                }
+
+                this.updateCoinDisplays(this.coins);
+
+                // Lock/Unlock visibility routes: completely hidden if locked
+                const zenBtn = document.getElementById('menuZenBtn');
+                if (this.upgrades.upg2) {
+                    zenBtn.style.display = 'block';
+                    zenBtn.textContent = "Practice";
+                    zenBtn.onclick = () => { game.startGame('zen'); };
+                } else {
+                    zenBtn.style.display = 'none';
+                }
+
+                const settingsBtn = document.getElementById('menuSettingsBtn');
+                if (this.upgrades.upg3) {
+                    settingsBtn.style.display = 'block';
+                    settingsBtn.textContent = "Settings";
+                    settingsBtn.onclick = () => { game.showScreen('settingsScreen'); game.refreshSettings(); };
+                } else {
+                    settingsBtn.style.display = 'none';
+                }
+
+                // Gold shop visibility ONLY after player's first round has finished
+                const shopBtn = document.getElementById('shopOpenBtn');
+                if (this.hasPlayed) {
+                    shopBtn.style.display = 'block';
+                } else {
+                    shopBtn.style.display = 'none';
+                }
             },
 
             showConfirmation() {
@@ -1491,6 +1515,28 @@
 
             executeZenDelete() {
                 this.zenHighScore = 0;
+                this.highScore = 0;
+                this.modHighScore = 0;
+                this.totalDefeated = 0;
+                this.sumDefeated = 0;
+                this.highestNumber = 0;
+                this.coins = 0;
+                this.bestDefeatedNoMods = 0;
+                this.hasPlayed = false;
+                this.upgrades = {
+                    upg1: 0,
+                    upg2: false,
+                    upg3: false,
+                    upg4: false,
+                    upg5: false,
+                    upg6: false,
+                    upg7: false,
+                    upg8: false,
+                    upg9: false,
+                    upg10: false,
+                    upg11: false,
+                    upg12: false
+                };
                 this.persist();
                 this.refreshSettings();
                 this.updateMenuStats();
@@ -1522,9 +1568,7 @@
                         { name: "S", min: 2000, max: 2250 }
                     ];
 
-                    if (score >= 5000) {
-                        return { name: "X", percent: 100 };
-                    }
+                    if (score >= 5000) return { name: "X", percent: 100 };
 
                     if (score > 2250) {
                         const diff = score - 2250;
@@ -1548,7 +1592,6 @@
 
                     return { name: "F", percent: 0 };
                 } else {
-                    // ZEN RANK SCALING
                     const tiers = [
                         { name: "F", min: 0, max: 200 },
                         { name: "D-", min: 200, max: 400 },
@@ -1567,9 +1610,7 @@
                         { name: "S", min: 16250, max: 20000 }
                     ];
 
-                    if (score >= 50000) {
-                        return { name: "X", percent: 100 };
-                    }
+                    if (score >= 50000) return { name: "X", percent: 100 };
 
                     if (score > 20000) {
                         const diff = score - 20000;
@@ -1596,11 +1637,9 @@
             },
 
             openZenSidebar() {
-                // Populate current live session settings in the sidebar
                 document.getElementById('sidebarTierSlider').value = this.zenSpawnTier;
                 this.updateSidebarUI();
 
-                // Show elements and trigger CSS transitions
                 document.getElementById('zenSidebar').classList.add('open');
                 document.getElementById('sidebarOverlay').classList.add('open');
             },
@@ -1612,7 +1651,6 @@
 
             setZenPool(lvl) {
                 this.zenSpawnLevel = lvl;
-                // Highlight active button
                 for (let i = 1; i <= 3; i++) {
                     const btn = document.getElementById('poolBtn' + i);
                     if (i === lvl) {
@@ -1633,7 +1671,6 @@
                 const calculatedCap = Math.round(100 * Math.pow(Math.pow(1.25, 5), this.zenSpawnTier - 1));
                 document.getElementById('sidebarCapVal').textContent = calculatedCap.toLocaleString();
 
-                // Highlight active pool buttons
                 for (let i = 1; i <= 3; i++) {
                     const btn = document.getElementById('poolBtn' + i);
                     if (i === this.zenSpawnLevel) {
@@ -1644,6 +1681,295 @@
                 }
             },
 
+            getUpgradeCost(id) {
+                if (id === 'upg1') {
+                    const lvl = this.upgrades.upg1 || 0;
+                    return Math.floor(200 * Math.pow(1.3, lvl));
+                }
+                const costs = {
+                    upg2: 200,
+                    upg3: 500,
+                    upg4: 5000,
+                    upg5: 10000,
+                    upg6: 30000,
+                    upg7: 45000,
+                    upg8: 120000,
+                    upg9: 450000,
+                    upg10: 1250000,
+                    upg11: 4500000,
+                    upg12: 50000000
+                };
+                return costs[id] || 0;
+            },
+
+            getUpgradeInfo(id) {
+                switch (id) {
+                    case 'upg1':
+                        const lvl = this.upgrades.upg1 || 0;
+                        return {
+                            name: "More coins",
+                            desc: `+10% coin gain / level additive (Current: +${lvl * 10}%).`,
+                            level: lvl,
+                            oneTime: false
+                        };
+                    case 'upg2':
+                        return {
+                            name: "Practice Mode",
+                            desc: "Unlock Practice Mode.",
+                            oneTime: true,
+                            owned: !!this.upgrades.upg2
+                        };
+                    case 'upg3':
+                        return {
+                            name: "Settings",
+                            desc: "Unlock General Settings.",
+                            oneTime: true,
+                            owned: !!this.upgrades.upg3
+                        };
+                    case 'upg4':
+                        const scoreMult = 1 + Math.floor(100 * Math.pow(this.highScore / 1200, 2)) / 100;
+                        return {
+                            name: "Skill -> More points",
+                            desc: `Multiply coin gain based on your unmodded best score: x${scoreMult.toFixed(2)}.`,
+                            oneTime: true,
+                            owned: !!this.upgrades.upg4
+                        };
+                    case 'upg5':
+                        return {
+                            name: "Custom Modifiers",
+                            desc: "Unlock gameplay modifiers (in settings).",
+                            oneTime: true,
+                            owned: !!this.upgrades.upg5
+                        };
+                    case 'upg6':
+                        return {
+                            name: "Extra Bonuses",
+                            desc: "Unlock Quick and Precise game bonuses (when triggered see the top left of the page!)",
+                            oneTime: true,
+                            owned: !!this.upgrades.upg6
+                        };
+                    case 'upg7':
+                        const defMult = Math.pow(1 + this.totalDefeated, 0.15);
+                        return {
+                            name: "Kill experience",
+                            desc: `Multiply coin gain based on total enemies defeated: x${defMult.toFixed(3)}.`,
+                            oneTime: true,
+                            owned: !!this.upgrades.upg7
+                        };
+                    case 'upg8':
+                        const bestNoModsDef = this.bestDefeatedNoMods || 0;
+                        const defBestMult = 1 + Math.pow(Math.max(0, (bestNoModsDef - 30) / 5), 0.6);
+                        return {
+                            name: "Record Kill Boost",
+                            desc: `Multiply coin gain based on best unmodded enemies defeated (min 30 for effect): x${defBestMult.toFixed(3)}.`,
+                            oneTime: true,
+                            owned: !!this.upgrades.upg8
+                        };
+                    case 'upg9':
+                        return {
+                            name: "Triple",
+                            desc: "Triple (x3) coin gains.",
+                            oneTime: true,
+                            owned: !!this.upgrades.upg9
+                        };
+                    case 'upg10':
+                        const selfBoost = Math.round((1 + Math.pow(this.coins / 150000, 0.2)) * 1000) / 1000;
+                        return {
+                            name: "Self-boost",
+                            desc: `Coins multiply themselves based on current reserves: x${selfBoost.toFixed(3)}.`,
+                            oneTime: true,
+                            owned: !!this.upgrades.upg10
+                        };
+                    case 'upg11':
+                        return {
+                            name: "Coins!!!!!!!",
+                            desc: "x5 all coin gains.",
+                            oneTime: true,
+                            owned: !!this.upgrades.upg11
+                        };
+                    case 'upg12':
+                        return {
+                            name: "Win",
+                            desc: "Win the game.",
+                            oneTime: true,
+                            owned: !!this.upgrades.upg12
+                        };
+                }
+            },
+
+            refreshShop() {
+                this.updateCoinDisplays(this.coins);
+                const container = document.getElementById('shopUpgradesContainer');
+                container.innerHTML = '';
+                
+                const ids = ['upg1', 'upg2', 'upg3', 'upg4', 'upg5', 'upg6', 'upg7', 'upg8', 'upg9', 'upg10', 'upg11', 'upg12'];
+                ids.forEach(id => {
+                    const info = this.getUpgradeInfo(id);
+                    const cost = this.getUpgradeCost(id);
+                    
+                    const card = document.createElement('div');
+                    card.className = 'modifier-adjust-row';
+                    card.style.borderColor = info.owned ? 'var(--accent)' : 'var(--fg-dim)';
+                    
+                    const details = document.createElement('div');
+                    details.className = 'modifier-info';
+                    
+                    const titleSpan = document.createElement('span');
+                    titleSpan.className = 'modifier-name';
+                    titleSpan.style.color = info.owned ? 'var(--accent)' : 'var(--fg)';
+                    titleSpan.textContent = info.name + (info.oneTime && info.owned ? ' (Owned)' : '');
+                    
+                    const descSpan = document.createElement('span');
+                    descSpan.className = 'modifier-desc';
+                    descSpan.textContent = info.desc;
+                    
+                    details.appendChild(titleSpan);
+                    details.appendChild(descSpan);
+                    
+                    const controls = document.createElement('div');
+                    controls.className = 'modifier-controls';
+                    
+                    if (info.oneTime && info.owned) {
+                        const ownedLabel = document.createElement('span');
+                        ownedLabel.className = 'setting-value';
+                        ownedLabel.style.color = 'var(--accent)';
+                        ownedLabel.textContent = "OWNED";
+                        controls.appendChild(ownedLabel);
+                    } else {
+                        const costBtn = document.createElement('button');
+                        costBtn.className = 'btn-exit-practice';
+                        costBtn.style.minWidth = '110px';
+                        costBtn.style.padding = '6px 12px';
+                        costBtn.textContent = cost.toLocaleString() + ' C';
+                        
+                        if (this.coins < cost) {
+                            costBtn.style.opacity = '0.5';
+                            costBtn.style.cursor = 'not-allowed';
+                        } else {
+                            costBtn.onclick = () => { this.buyUpgrade(id); };
+                        }
+                        controls.appendChild(costBtn);
+                    }
+                    
+                    card.appendChild(details);
+                    card.appendChild(controls);
+                    container.appendChild(card);
+                });
+            },
+
+            buyUpgrade(id) {
+                const cost = this.getUpgradeCost(id);
+                if (this.coins >= cost) {
+                    this.coins -= cost;
+                    if (id === 'upg1') {
+                        this.upgrades.upg1 = (this.upgrades.upg1 || 0) + 1;
+                    } else {
+                        this.upgrades[id] = true;
+                    }
+                    this.persist();
+                    
+                    if (id === 'upg12') {
+                        this.showScreen('victoryScreen');
+                    } else {
+                        this.refreshShop();
+                        this.updateMenuStats();
+                    }
+                }
+            },
+
+            updateCoinDisplays(val) {
+                document.querySelectorAll('.coin-count-text').forEach(el => {
+                    el.textContent = Math.round(val).toLocaleString();
+                });
+            },
+
+            gainCoins(pointsGained) {
+                if (pointsGained <= 0) return;
+                
+                let mult = 1.0;
+                mult += 0.1 * (this.upgrades.upg1 || 0);
+                if (this.upgrades.upg4) {
+                    mult *= (1 + Math.floor(100 * Math.pow(this.highScore / 1200, 2)) / 100);
+                }
+                if (this.upgrades.upg7) {
+                    mult *= Math.pow(1 + this.totalDefeated, 0.15);
+                }
+                if (this.upgrades.upg8) {
+                    mult *= (1 + Math.pow(Math.max(0, ((this.bestDefeatedNoMods || 0) - 30) / 5), 0.6));
+                }
+                if (this.upgrades.upg9) {
+                    mult *= 3;
+                }
+                if (this.upgrades.upg10) {
+                    let selfBoost = 1 + Math.pow(this.coins / 150000, 0.2);
+                    mult *= Math.round(selfBoost * 1000) / 1000;
+                }
+                if (this.upgrades.upg11) {
+                    mult *= 5;
+                }
+                
+                let gain = Math.ceil(pointsGained * mult);
+                let oldCoins = this.coins;
+                this.coins += gain;
+                this.persist();
+                
+                this.animateCoinIncrease(oldCoins, this.coins, gain);
+            },
+
+            animateCoinIncrease(oldVal, newVal, gain) {
+                const displays = document.querySelectorAll('.coin-count-text');
+                displays.forEach(disp => {
+                    const rect = disp.getBoundingClientRect();
+                    const floater = document.createElement('div');
+                    floater.className = 'flying-bonus';
+                    floater.style.color = '#ffd700';
+                    floater.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2" style="width: 1.4rem; height: 1.4rem;"><circle cx="12" cy="12" r="10" fill="rgba(255, 215, 0, 0.15)" stroke="#ffd700" stroke-width="2"/><circle cx="12" cy="12" r="6" stroke="#ffd700" stroke-width="1.5"/><path d="M12 9v6M10 11h4" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        <span>+${gain}</span>
+                    `;
+                    floater.style.left = (rect.left + rect.width / 2) + 'px';
+                    floater.style.top = (rect.top - 10) + 'px';
+                    floater.style.zIndex = '1002';
+                    document.body.appendChild(floater);
+                    
+                    const startTime = performance.now();
+                    const duration = 1000;
+                    const animateFloat = (now) => {
+                        const elapsed = now - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        
+                        floater.style.transform = `translateY(-${progress * 40}px) scale(${1 + (1 - progress) * 0.3})`;
+                        floater.style.opacity = 1 - progress;
+                        
+                        if (progress < 1) {
+                            requestAnimationFrame(animateFloat);
+                        } else {
+                            floater.remove();
+                        }
+                    };
+                    requestAnimationFrame(animateFloat);
+                });
+
+                const duration = 800;
+                const startTime = performance.now();
+                const self = this;
+                const animateCount = (now) => {
+                    const elapsed = now - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3); // Cubic ease out
+                    const currentCoins = Math.round(oldVal + (newVal - oldVal) * eased);
+                    
+                    self.updateCoinDisplays(currentCoins);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animateCount);
+                    } else {
+                        self.updateCoinDisplays(newVal);
+                    }
+                };
+                requestAnimationFrame(animateCount);
+            },
+
             startGame(mode) {
                 this.gameMode = mode || 'classic';
                 this.defeated = 0;
@@ -1651,11 +1977,8 @@
                 this.preciseBonusPoints = 0;
                 this.isGameOver = false;
 
-                // Reset session properties if beginning fresh Zen Mode practice
+                // Score setup depends on mode: Zen Score is persistent, Classic begins at 0.
                 if (this.gameMode === 'zen') {
-                    this.zenSpawnLevel = 1;
-                    this.zenSpawnTier = 1;
-                    
                     this.score = this.zenHighScore;
                     this.baseScore = this.zenHighScore;
                     this.displayedScore = this.zenHighScore;
@@ -1667,7 +1990,16 @@
                     this.displayedBaseScore = 0;
                 }
 
-                // Header adjustments: Swap hearts block for exiting controls in Zen mode
+                this.lastCorrectFactorTime = performance.now();
+
+                const modIndicator = document.getElementById('moddedIndicator');
+                if (this.gameMode === 'classic' && this.hasModsActive()) {
+                    modIndicator.style.display = 'block';
+                    modIndicator.textContent = "Modded (" + this.getModMultiplier().toFixed(2) + "x)";
+                } else {
+                    modIndicator.style.display = 'none';
+                }
+
                 const livesContainer = document.getElementById('livesContainer');
                 if (this.gameMode === 'zen') {
                     livesContainer.innerHTML = `
@@ -1675,7 +2007,13 @@
                         <button class="btn-exit-practice" style="margin-left: 8px; border-color: var(--accent); color: var(--accent);" onclick="game.openZenSidebar()">CONFIG</button>
                     `;
                 } else {
-                    this.lives = 5;
+                    let baseStartingLives = 5;
+                    if (this.mods.fragile > 0) {
+                        baseStartingLives = Math.max(1, 5 - this.mods.fragile);
+                    } else if (this.mods.friendly > 0) {
+                        baseStartingLives = 5 + this.mods.friendly;
+                    }
+                    this.lives = baseStartingLives;
                     this.updateLives();
                 }
 
@@ -1688,35 +2026,55 @@
 
                 this.showScreen('gameScreen');
                 this.updateScore();
+                this.updateCoinDisplays(this.coins);
+                
+                this.isFirstNumber = true;
                 this.nextNumber();
             },
 
             calculatePhase() {
                 var n = this.defeated + 1;
+                
                 if (n <= 15) {
                     this.phase = 1;
                     this.difficulty = 1 + 0.02 * n;
                     this.primes = [2, 3, 5, 7];
                     this.maxTime = (8.5 + 0.1 * n) * 1000;
-                    return 100 * Math.pow(1.1, n);
                 } else if (n <= 30) {
                     this.phase = 2;
                     this.difficulty = 0.7 + 0.04 * n;
                     this.primes = [2, 3, 5, 7, 11, 13];
                     this.maxTime = (7 + 0.2 * n) * 1000;
-                    return 50 * Math.pow(1.1, n);
                 } else {
                     this.phase = 3;
                     this.difficulty = -1.1 + 0.1 * n;
                     this.primes = [2, 3, 5, 7, 11, 13, 17, 19, 23];
                     this.maxTime = Math.round((13 + 0.5 * Math.sqrt(n - 30)) * 100) / 100 * 1000;
-                    return 0.35 * Math.pow(1.25, n);
                 }
+
+                if (this.gameMode === 'classic') {
+                    if (this.mods.turbo > 0) {
+                        this.maxTime = this.maxTime / (1 + 0.25 * this.mods.turbo);
+                    } else if (this.mods.think > 0) {
+                        this.maxTime = this.maxTime * (1 + 0.18 * this.mods.think);
+                    }
+                    this.maxTime = Math.round(this.maxTime * 100) / 100;
+                }
+
+                let cap;
+                if (n <= 15) {
+                    cap = 100 * Math.pow(1.1, n);
+                } else if (n <= 30) {
+                    cap = 50 * Math.pow(1.1, n);
+                } else {
+                    cap = 0.35 * Math.pow(1.25, n);
+                }
+
+                return cap;
             },
 
             generateNumber() {
                 if (this.gameMode === 'zen') {
-                    // Pull values instantly from the non-saved Zen configs
                     if (this.zenSpawnLevel === 1) {
                         this.primes = [2, 3, 5, 7];
                         this.phase = 1;
@@ -1728,8 +2086,7 @@
                         this.phase = 3;
                     }
 
-                    // Max tier formula: 100 * (1.25^5)^(tier - 1) up to Tier 20
-                    const cap = Math.round(100 * Math.pow(Math.pow(1.25, 5), this.zenSpawnTier - 1));
+                    const cap = 100 * Math.pow(Math.pow(1.25, 5), this.zenSpawnTier - 1);
                     var num = 1;
                     this._currentNumberFactorsCount = 0;
                     while (true) {
@@ -1754,18 +2111,57 @@
             },
 
             nextNumber() {
+                let previousPhase = this.phase;
                 this.currentNumber = this.generateNumber();
                 this.timeRemaining = this.maxTime;
                 
-                // Reset metrics per generated number
                 this.currentNumberStartTime = performance.now();
                 this.attackTimes = [];
                 this.hasError = false;
+                this.isFirstFactorOfEnemy = true;
 
+                if (this.gameMode === 'classic' && this.mods.muscleMemory > 0) {
+                    if (this.mods.muscleMemory === 1) {
+                        this.layoutsHidden = false;
+                    } else if (this.mods.muscleMemory === 2) {
+                        this.layoutsHidden = false;
+                        if (this.muscleMemoryTimeout) clearTimeout(this.muscleMemoryTimeout);
+                        this.muscleMemoryTimeout = setTimeout(() => {
+                            if (!this.isGameOver && this.gameMode === 'classic') {
+                                this.layoutsHidden = true;
+                                this.updateButtonVisibility();
+                            }
+                        }, 500);
+                    } else if (this.mods.muscleMemory === 3) {
+                        this.layoutsHidden = true;
+                    }
+                } else {
+                    this.layoutsHidden = false;
+                }
+
+                if (this.gameMode === 'classic' && this.mods.chaos) {
+                    if (this.isFirstNumber || this.phase !== previousPhase) {
+                        this.shuffledPrimes = this.shuffleArray([...this.primes]);
+                    }
+                } else {
+                    this.shuffledPrimes = [...this.primes];
+                }
+
+                this.isFirstNumber = false;
                 this.updateNumberDisplay();
                 this.updateButtons();
                 this.lastTime = performance.now();
                 this.startTimer();
+            },
+
+            shuffleArray(array) {
+                let currentIndex = array.length, randomIndex;
+                while (currentIndex != 0) {
+                    randomIndex = Math.floor(Math.random() * currentIndex);
+                    currentIndex--;
+                    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+                }
+                return array;
             },
 
             updateButtons() {
@@ -1773,12 +2169,27 @@
                 container.className = 'prime-buttons phase-' + this.phase;
                 container.innerHTML = '';
                 var self = this;
-                this.primes.forEach(function (prime) {
+                
+                this.shuffledPrimes.forEach(function (prime) {
                     var btn = document.createElement('button');
                     btn.className = 'prime-btn';
                     btn.textContent = prime;
+                    if (self.layoutsHidden) {
+                        btn.classList.add('hidden-text');
+                    }
                     btn.onclick = function () { self.attack(prime, btn); };
                     container.appendChild(btn);
+                });
+            },
+
+            updateButtonVisibility() {
+                const buttons = document.querySelectorAll('#primeButtons .prime-btn');
+                buttons.forEach((btn) => {
+                    if (this.layoutsHidden) {
+                        btn.classList.add('hidden-text');
+                    } else {
+                        btn.classList.remove('hidden-text');
+                    }
                 });
             },
 
@@ -1786,17 +2197,16 @@
                 if (this.currentNumber % prime === 0 && Number.isInteger(this.currentNumber / prime)) {
                     var points;
                     if (this.gameMode === 'zen') {
-                        // Max points on Zen mode: scale directly with active configuration tier
-                        points = Math.ceil(10 + 2 * this.zenSpawnTier);
+                        points = Math.ceil(10 * this.zenSpawnTier);
                     } else {
                         var timeRatio = this.timeRemaining / this.maxTime;
-                        points = Math.ceil(10 * this.difficulty * Math.pow(timeRatio, 0.55));
+                        let basePoints = Math.ceil(10 * this.difficulty * Math.pow(timeRatio, 0.55));
+                        points = Math.ceil(basePoints * this.getModMultiplier());
                     }
                     
-                    // Track tap timestamp relative to start
                     this.attackTimes.push(performance.now() - this.currentNumberStartTime);
-                    
                     this.animateNumberFly(prime, btn);
+                    
                     var self = this;
                     setTimeout(function () {
                         self.currentNumber /= prime;
@@ -1804,11 +2214,26 @@
                             self.loseLife();
                             return;
                         }
+
+                        if (self.gameMode === 'classic' && self.mods.encouragement > 0) {
+                            let addedSec = 0.1 * self.mods.encouragement;
+                            self.timeRemaining = Math.min(self.maxTime, self.timeRemaining + (addedSec * 1000));
+                        }
+
+                        if (self.gameMode === 'classic' && self.mods.muscleMemory === 1 && self.isFirstFactorOfEnemy) {
+                            self.isFirstFactorOfEnemy = false;
+                            self.layoutsHidden = true;
+                            self.updateButtonVisibility();
+                        }
                         
                         self.baseScore += points;
                         self.score += points;
 
-                        // Save zen score immediately on change so progress persists through browser exit/refresh
+                        // Award coin economy coins equal to points scored
+                        self.gainCoins(points);
+
+                        self.lastCorrectFactorTime = performance.now();
+
                         if (self.gameMode === 'zen') {
                             self.zenHighScore = self.score;
                             self.persist();
@@ -1859,7 +2284,6 @@
             },
 
             animateInGameBonus(type, oldVal, newVal) {
-                // Cancel bonuses visually and functionally when playing Zen Mode
                 if (this.gameMode === 'zen') return;
 
                 const elId = type === 'quick' ? 'quickBonusNotify' : 'preciseBonusNotify';
@@ -1870,19 +2294,17 @@
                 if (el._animFrame) cancelAnimationFrame(el._animFrame);
                 if (el._slideInTimeout) clearTimeout(el._slideInTimeout);
 
-                // Instantly display and set old score
                 el.classList.add('show');
                 el.textContent = label + oldVal;
 
-                // Wait 400ms for the off-screen left CSS transition to finish sliding on-screen
                 el._slideInTimeout = setTimeout(() => {
-                    const duration = 600; // ms duration for score rollup
+                    const duration = 600;
                     const startTime = performance.now();
 
                     const updateValue = (now) => {
                         const elapsed = now - startTime;
                         const progress = Math.min(elapsed / duration, 1);
-                        const eased = 1 - Math.pow(1 - progress, 3); // Cubic ease-out
+                        const eased = 1 - Math.pow(1 - progress, 3);
                         const curVal = Math.round(oldVal + (newVal - oldVal) * eased);
                         
                         el.textContent = label + curVal;
@@ -1899,7 +2321,6 @@
                 }, 400);
             },
 
-            // Animates ONLY the core factor divisions (baseScore) in-game
             animateScore() {
                 if (this.scoreTransition) {
                     this.scoreTransition.cancelled = true;
@@ -1934,27 +2355,25 @@
                 }
                 document.getElementById('defeatedDisplay').textContent = this.defeated;
 
-                // Track old values to power rollup visual
                 var oldQuick = this.quickBonusPoints;
                 var oldPrecise = this.preciseBonusPoints;
 
                 var totalDurationSec = (performance.now() - this.currentNumberStartTime) / 1000;
                 var factors = this._currentNumberFactorsCount;
 
-                // Extra bonuses are completely disabled in Zen Mode
-                if (this.gameMode !== 'zen') {
-                    // ── 1. Quick Bonus ──
+                // Extra bonuses only calculated and awarded if Upg6 is unlocked
+                if (this.gameMode !== 'zen' && this.upgrades.upg6) {
                     var targetTime = 1.8 + (0.3 * factors);
                     if (!this.hasError && totalDurationSec <= targetTime) {
                         var diff = targetTime - totalDurationSec;
                         var intervals = diff / 0.1;
-                        var quickPoints = Math.floor(3 + intervals);
+                        var quickPoints = Math.floor((3 + intervals) * this.getModMultiplier());
                         this.quickBonusPoints += quickPoints;
                         this.score += quickPoints;
+                        this.gainCoins(quickPoints); // Award coins for quick bonus
                         this.animateInGameBonus('quick', oldQuick, this.quickBonusPoints);
                     }
 
-                    // ── 2. Precise Bonus ──
                     var q = this.defeated; 
                     if (!this.hasError && this.attackTimes.length >= 2) {
                         var precise = true;
@@ -1974,8 +2393,10 @@
                             } else {
                                 precisePoints = 10 + Math.floor((q - 30) / 2);
                             }
+                            precisePoints = Math.floor(precisePoints * this.getModMultiplier());
                             this.preciseBonusPoints += precisePoints;
                             this.score += precisePoints;
+                            this.gainCoins(precisePoints); // Award coins for precise bonus
                             this.animateInGameBonus('precise', oldPrecise, this.preciseBonusPoints);
                         }
                     }
@@ -1996,7 +2417,7 @@
             },
 
             loseLife() {
-                this.hasError = true; // Negate any bonus possibility for this factor
+                this.hasError = true;
 
                 var container = document.querySelector('.container');
                 container.classList.add('shake', 'flash');
@@ -2005,7 +2426,6 @@
                 }, 300);
 
                 if (this.gameMode === 'zen') {
-                    // ZEN MODE: No life loss. Spawn a fresh number immediately.
                     if (this.animationFrame) {
                         cancelAnimationFrame(this.animationFrame);
                     }
@@ -2036,7 +2456,7 @@
                 for (var i = 0; i < this.lives; i++) {
                     var heart = document.createElement('div');
                     heart.className = 'heart';
-                    heart.textContent = '\u2665';
+                    heart.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" style="width: 24px; height: 24px;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
                     container.appendChild(heart);
                 }
             },
@@ -2053,7 +2473,6 @@
             },
 
             startTimer() {
-                // If Zen mode, there is absolutely no timing pressure / timeouts
                 if (this.gameMode === 'zen') {
                     return;
                 }
@@ -2063,6 +2482,21 @@
                     var delta = currentTime - self.lastTime;
                     self.lastTime = currentTime;
                     self.timeRemaining -= delta;
+
+                    if (self.gameMode === 'classic' && self.mods.drain >= 1) {
+                        let elapsedSinceCorrect = currentTime - self.lastCorrectFactorTime;
+                        if (elapsedSinceCorrect >= 1500) {
+                            let drainRatePerMs = (4 + 4 * self.mods.drain) / 1000;
+                            let amountToDrain = drainRatePerMs * delta;
+                            
+                            self.baseScore = Math.max(0, self.baseScore - amountToDrain);
+                            self.score = Math.max(0, self.score - amountToDrain);
+                            
+                            self.displayedBaseScore = Math.round(self.baseScore);
+                            self.updateScore();
+                        }
+                    }
+
                     if (self.timeRemaining <= 0) {
                         self.timeRemaining = 0;
                         self.updateTimeBar();
@@ -2086,53 +2520,104 @@
             },
 
             gameOver() {
-                // Prevent duplicate Game Over sequences from running simultaneously
                 if (this.isGameOver) return;
                 this.isGameOver = true;
 
                 if (this.animationFrame) {
                     cancelAnimationFrame(this.animationFrame);
                 }
-                
-                // Close sidebar if still open
+
                 this.closeZenSidebar();
 
-                // Track total final score (including base score AND extra bonuses depending on mode)
+                // Explicit rounding of scores to resolve float representations in Screenshot_20260623-210636.png
+                this.score = Math.round(this.score);
+                this.baseScore = Math.round(this.baseScore);
+                this.displayedBaseScore = Math.round(this.displayedBaseScore);
+
+                // Set local flag confirming player has completed their first round
+                this.hasPlayed = true;
+
                 if (this.gameMode === 'zen') {
                     if (this.score > this.zenHighScore) {
                         this.zenHighScore = this.score;
                     }
                     document.getElementById('gameOverTitle').textContent = "PRACTICE SESSION COMPLETE";
                     document.getElementById('bonusTallyContainer').style.display = 'none';
+                    document.getElementById('gameOverModsContainer').style.display = 'none';
                 } else {
-                    if (this.score > this.highScore) {
-                        this.highScore = this.score;
+                    if (this.hasModsActive()) {
+                        if (this.score > this.modHighScore) {
+                            this.modHighScore = this.score;
+                        }
+                    } else {
+                        if (this.score > this.highScore) {
+                            this.highScore = this.score;
+                        }
+                        if (this.defeated > (this.bestDefeatedNoMods || 0)) {
+                            this.bestDefeatedNoMods = this.defeated;
+                        }
                     }
                     document.getElementById('gameOverTitle').textContent = "GAME OVER";
-                    document.getElementById('bonusTallyContainer').style.display = 'block';
+                    document.getElementById('bonusTallyContainer').style.display = this.upgrades.upg6 ? 'block' : 'none';
                 }
                 
                 this.persist();
                 this.updateMenuStats();
 
-                // Clear and render previous tally labels
                 document.getElementById('tallyQuickBonus').textContent = "+" + this.quickBonusPoints;
                 document.getElementById('tallyPreciseBonus').textContent = "+" + this.preciseBonusPoints;
                 document.getElementById('finalDefeated').textContent = this.defeated;
 
-                // Display Game Over Screen - initially shows core division baseScore
+                const gameOverModsContainer = document.getElementById('gameOverModsContainer');
+                if (this.gameMode === 'classic' && this.hasModsActive()) {
+                    gameOverModsContainer.style.display = 'block';
+                    let modsListHtml = '';
+                    
+                    if (this.mods.turbo > 0) {
+                        modsListHtml += `<div class="bonus-tally-row"><span>Turbo Mod (Lvl ${this.mods.turbo}):</span><span class="bonus-tally-val">+${this.mods.turbo * 7}%</span></div>`;
+                    }
+                    if (this.mods.think > 0) {
+                        modsListHtml += `<div class="bonus-tally-row"><span>Think Mod (Lvl ${this.mods.think}):</span><span class="bonus-tally-val">-${this.mods.think * 15}%</span></div>`;
+                    }
+                    if (this.mods.encouragement > 0) {
+                        modsListHtml += `<div class="bonus-tally-row"><span>Encouragement Mod (Lvl ${this.mods.encouragement}):</span><span class="bonus-tally-val">-${this.mods.encouragement * 7}%</span></div>`;
+                    }
+                    if (this.mods.drain > 0) {
+                        modsListHtml += `<div class="bonus-tally-row"><span>Drain Mod (Lvl ${this.mods.drain}):</span><span class="bonus-tally-val">+${this.mods.drain * 6}%</span></div>`;
+                    }
+                    if (this.mods.fragile > 0) {
+                        const fragileRates = [0, 7, 12, 19, 30];
+                        modsListHtml += `<div class="bonus-tally-row"><span>Fragile Mod (Lvl ${this.mods.fragile}):</span><span class="bonus-tally-val">+${fragileRates[this.mods.fragile]}%</span></div>`;
+                    }
+                    if (this.mods.friendly > 0) {
+                        const friendlyRates = [0, -12, -24, -38, -52, -68];
+                        modsListHtml += `<div class="bonus-tally-row"><span>Friendly Mod (Lvl ${this.mods.friendly}):</span><span class="bonus-tally-val">${friendlyRates[this.mods.friendly]}%</span></div>`;
+                    }
+                    if (this.mods.chaos) {
+                        modsListHtml += `<div class="bonus-tally-row"><span>Chaos Grid:</span><span class="bonus-tally-val">+25%</span></div>`;
+                    }
+                    if (this.mods.muscleMemory > 0) {
+                        const memoryRates = [0, 10, 17, 25];
+                        modsListHtml += `<div class="bonus-tally-row"><span>Muscle Memory (Lvl ${this.mods.muscleMemory}):</span><span class="bonus-tally-val">+${memoryRates[this.mods.muscleMemory]}%</span></div>`;
+                    }
+                    
+                    document.getElementById('gameOverModsList').innerHTML = modsListHtml;
+                    document.getElementById('gameOverModMultiplier').textContent = this.getModMultiplier().toFixed(2) + "x";
+                } else {
+                    gameOverModsContainer.style.display = 'none';
+                }
+
                 var finalScoreLabel = document.getElementById('finalScore');
                 var finalRankLabel = document.getElementById('finalRank');
                 
-                finalScoreLabel.textContent = this.baseScore;
+                finalScoreLabel.textContent = Math.round(this.baseScore);
                 finalScoreLabel.style.color = "var(--fg)";
                 finalRankLabel.textContent = this.getRankInfo(this.baseScore).name;
                 
                 this.showScreen('gameOverScreen');
 
-                // Fire the Flying Bonuses Tally sequence exactly once after 1 second if not in Zen mode
                 var self = this;
-                if (this.gameMode !== 'zen') {
+                if (this.gameMode !== 'zen' && this.upgrades.upg6) {
                     setTimeout(function() {
                         self.animateGameOverTally();
                     }, 1000);
@@ -2166,18 +2651,21 @@
 
                     var flyer = document.createElement('div');
                     flyer.className = 'flying-bonus';
-                    flyer.textContent = "+" + val;
+                    flyer.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2" style="width: 1.4rem; height: 1.4rem;"><circle cx="12" cy="12" r="10" fill="rgba(255, 215, 0, 0.15)" stroke="#ffd700" stroke-width="2"/><circle cx="12" cy="12" r="6" stroke="#ffd700" stroke-width="1.5"/><path d="M12 9v6M10 11h4" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        <span>+${val}</span>
+                    `;
                     flyer.style.left = startX + 'px';
                     flyer.style.top = startY + 'px';
                     document.body.appendChild(flyer);
 
                     var startTime = performance.now();
-                    var duration = 800; // 0.8 seconds
+                    var duration = 800;
 
                     var anim = function(now) {
                         var elapsed = now - startTime;
                         var progress = Math.min(elapsed / duration, 1);
-                        var eased = 1 - Math.pow(1 - progress, 3); // Cubic ease-out
+                        var eased = 1 - Math.pow(1 - progress, 3);
 
                         var x = startX + (targetX - startX) * eased;
                         var y = startY + (targetY - startY) * eased;
@@ -2217,7 +2705,7 @@
 
             animateGameOverScoreTally() {
                 var self = this;
-                var startScore = this.baseScore;
+                var startScore = Math.round(this.baseScore);
                 var endScore = this.score;
                 var duration = 1200;
                 var startTime = performance.now();
@@ -2229,7 +2717,7 @@
                 var animate = function(currentTime) {
                     var elapsed = currentTime - startTime;
                     var progress = Math.min(elapsed / duration, 1);
-                    var eased = 1 - Math.pow(1 - progress, 3); // Matching score transitions
+                    var eased = 1 - Math.pow(1 - progress, 3);
                     var curVal = Math.round(startScore + (endScore - startScore) * eased);
                     
                     finalScoreLabel.textContent = curVal;
@@ -2243,13 +2731,11 @@
             },
 
             returnToMenu() {
-                // Restore styling variables for the next run
                 document.getElementById('tallyQuickBonus').style.textDecoration = "none";
                 document.getElementById('tallyQuickBonus').style.opacity = "1";
                 document.getElementById('tallyPreciseBonus').style.textDecoration = "none";
                 document.getElementById('tallyPreciseBonus').style.opacity = "1";
                 
-                // Hide any leftover active in-game bonus notifications
                 document.getElementById('quickBonusNotify').classList.remove('show');
                 document.getElementById('preciseBonusNotify').classList.remove('show');
                 
@@ -2257,14 +2743,12 @@
             }
         };
 
-        // Patch nextNumber to track generated number
         var _origNext = game.nextNumber.bind(game);
         game.nextNumber = function () {
             _origNext();
             game._lastGeneratedNumber = game.currentNumber;
         };
 
-        // Dark mode setup
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.classList.add('dark');
         }
@@ -2276,7 +2760,6 @@
             }
         });
 
-        // Initialize game on script load
         game.init();
     </script>
 </body>
